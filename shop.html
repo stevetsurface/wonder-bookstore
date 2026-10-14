@@ -42,9 +42,14 @@
         </li>
         <li><a href="stores.html">Stores</a></li>
         <li><a href="about.html">About</a></li>
+        <li class="lang-mobile"><button class="seg" data-lang="id">ID</button><button class="seg" data-lang="en">EN</button></li>
       </ul>
       <div class="nav-actions">
-        <button class="cart-btn" data-open-cart aria-label="Open bag">Bag <span class="cart-count" data-cart-count>0</span></button>
+        <div class="lang" role="group" aria-label="Language"><button data-lang="id">ID</button><button data-lang="en">EN</button></div>
+        <div class="cart-wrap">
+          <button class="cart-btn" data-open-cart aria-label="Open bag"><span>Bag</span> <span class="cart-count" data-cart-count>0</span></button>
+          <div class="mini-cart"><div class="mini-cart-panel" data-mini-cart></div></div>
+        </div>
         <button class="nav-toggle" aria-label="Menu">☰</button>
       </div>
     </div>
@@ -63,12 +68,18 @@
 
     <section class="section light">
       <div class="container">
+        <div class="trending" data-trending></div>
+        <div class="seg-row">
+          <div class="segs" data-collection></div>
+          <div class="views" data-views></div>
+        </div>
         <div class="tabs" data-tabs></div>
         <div class="chips" data-chips></div>
         <div class="shop-bar">
           <input type="search" placeholder="Search titles, authors or brands" data-search aria-label="Search">
           <select data-sort aria-label="Sort">
             <option value="featured">Sort: Featured</option>
+            <option value="best">Best selling</option>
             <option value="price-asc">Price: low to high</option>
             <option value="price-desc">Price: high to low</option>
             <option value="title">Title A–Z</option>
@@ -138,12 +149,13 @@
     </div>
     <div class="drawer-body" data-cart-items></div>
     <div class="drawer-foot">
-      <div class="total-row"><span>Subtotal</span><span data-cart-total>Rp 0</span></div>
+      <div class="total-row"><span data-sub-label>Subtotal</span><span data-cart-total>Rp 0</span></div>
       <button class="btn btn-dark" data-checkout>Checkout ↗</button>
       <p class="form-note" style="text-align:center;color:var(--ink-soft)">Also available in store and on our official online shops.</p>
     </div>
   </aside>
 
+  <script src="assets/i18n.js"></script>
   <script src="assets/script.js"></script>
 </body>
 </html>

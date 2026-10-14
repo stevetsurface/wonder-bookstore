@@ -12,6 +12,18 @@ https://stevetsurface.github.io/wonder-bookstore/ (GitHub Pages, built from the 
 
 The home page borrows store-site patterns from storminggravity.com, restyled for Wonder: an announcement ticker, header search with a full-width Shop mega menu, a hero slideshow, product rails with arrows and a progress bar, quick-add on hover, curated "shelf" story tiles, a big impact number, an FAQ accordion with a WhatsApp button, and a newsletter block with a photo.
 
+## Languages
+
+The site is bilingual (ID / EN) with a toggle in the header. The browser language picks the default and the choice is remembered. Static page copy is translated in `assets/i18n.js` (keyed by the English text as written in the HTML, so edit the HTML and the dictionary together). Dynamic labels (cards, filters, bag) are translated in the `UI` object at the top of `assets/script.js`.
+
+## Shop features
+
+- Bestseller rank pills ("BEST SELLER #1" / "TERLARIS #1") on the top five by the `sold` field
+- Collections: All titles / Bestsellers / Staff picks / New arrivals
+- Views: grid, list and compact (remembered per browser)
+- "Trending in store" strip with a "Just bought" line, on the shop and home pages
+- Hover mini-cart on the bag button (desktop), plus the slide-in bag drawer
+
 ## Pages
 
 - `index.html` — home: ticker, slideshow, bestseller rail, curated shelves, concept, coffee shop, gifts rail, impact number, store grid, FAQ, community, newsletter
@@ -49,6 +61,7 @@ Then open http://localhost:8080.
 - **WhatsApp numbers** per store are not on the site yet; add them in the contact section of `stores.html`.
 - **Checkout** and the **newsletter / contact forms** are front-end only (they show a confirmation and do not send anything).
 - **FAQ answers** and **star ratings** are drafts; confirm them with the store team.
+- **Sales counts** (`sold`) behind the bestseller ranks and the trending strip, and the "Just bought" line, are placeholders.
 - **Social proof lines** on product cards ("N bought in the last 24 hours", "Recommended by the … team") come from the `recent` and `staff` fields in `assets/script.js`. The counts are placeholders: wire them to real sales data or remove them before launch, since invented urgency counters mislead customers.
 - **Ticker messages** live at the top of each HTML file; edit them there.
 - Photos are cropped from the deck PDF at screen resolution; replace with the original files for best quality.
