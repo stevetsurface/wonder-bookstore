@@ -2,23 +2,23 @@
 
 const PRODUCTS = [
   // Books (titles carried per the store's product highlights; prices are placeholders)
-  { id: 1, rating: 4.9,  type: "Books", category: "Self-Development", title: "Atomic Habits", author: "James Clear", format: "Hardcover", price: 289000, color: "#f4efe4", light: true, badge: "Bestseller" },
-  { id: 2, rating: 4.7,  type: "Books", category: "Fiction", title: "The Silent Patient", author: "Alex Michaelides", format: "Paperback", price: 199000, color: "#2b2b2b", badge: "Bestseller" },
-  { id: 3, rating: 4.6,  type: "Books", category: "Business", title: "The Art of Thinking Clearly", author: "Rolf Dobelli", format: "Paperback", price: 229000, color: "#dfe5d3", light: true },
+  { id: 1, recent: 7, staff: "Ashta District 8", rating: 4.9,  type: "Books", category: "Self-Development", title: "Atomic Habits", author: "James Clear", format: "Hardcover", price: 289000, color: "#f4efe4", light: true, badge: "Bestseller" },
+  { id: 2, recent: 4, rating: 4.7,  type: "Books", category: "Fiction", title: "The Silent Patient", author: "Alex Michaelides", format: "Paperback", price: 199000, color: "#2b2b2b", badge: "Bestseller" },
+  { id: 3, staff: "Hublife", rating: 4.6,  type: "Books", category: "Business", title: "The Art of Thinking Clearly", author: "Rolf Dobelli", format: "Paperback", price: 229000, color: "#dfe5d3", light: true },
   { id: 4, rating: 4.5,  type: "Books", category: "Classics", title: "The Art of War", author: "Sun Tzu", format: "Paperback", price: 149000, color: "#6b2f2a" },
-  { id: 5, rating: 4.8,  type: "Books", category: "Self-Development", title: "When Things Don't Go Your Way", author: "Haemin Sunim", format: "Paperback", price: 259000, color: "#f0b84a", light: true, badge: "Staff pick" },
-  { id: 6, rating: 4.9,  type: "Books", category: "Children", title: "Dog Man: A Tale of Two Kitties", author: "Dav Pilkey", format: "Paperback", price: 189000, color: "#1e5fa8" },
-  { id: 7, rating: 4.5,  type: "Books", category: "Fiction", title: "The Stranger in the Lifeboat", author: "Mitch Albom", format: "Paperback", price: 219000, color: "#1b3a5c" },
+  { id: 5, recent: 3, staff: "Berawa", rating: 4.8,  type: "Books", category: "Self-Development", title: "When Things Don't Go Your Way", author: "Haemin Sunim", format: "Paperback", price: 259000, color: "#f0b84a", light: true, badge: "Staff pick" },
+  { id: 6, recent: 5, rating: 4.9,  type: "Books", category: "Children", title: "Dog Man: A Tale of Two Kitties", author: "Dav Pilkey", format: "Paperback", price: 189000, color: "#1e5fa8" },
+  { id: 7, staff: "TSM Bali", rating: 4.5,  type: "Books", category: "Fiction", title: "The Stranger in the Lifeboat", author: "Mitch Albom", format: "Paperback", price: 219000, color: "#1b3a5c" },
   { id: 8, rating: 4.7,  type: "Books", category: "Fiction", title: "The Five People You Meet in Heaven", author: "Mitch Albom", format: "Paperback", price: 199000, color: "#e8dcc4", light: true },
-  { id: 9, rating: 4.8,  type: "Books", category: "Self-Development", title: "The Book You Wish Your Parents Had Read", author: "Philippa Perry", format: "Hardcover", price: 249000, color: "#e2521f", badge: "Staff pick" },
-  { id: 10, rating: 4.9, type: "Books", category: "Children", title: "Dog Man and Cat Kid", author: "Dav Pilkey", format: "Paperback", price: 189000, color: "#3f8a3a" },
+  { id: 9, recent: 2, staff: "Pondok Indah Mall 5", rating: 4.8,  type: "Books", category: "Self-Development", title: "The Book You Wish Your Parents Had Read", author: "Philippa Perry", format: "Hardcover", price: 249000, color: "#e2521f", badge: "Staff pick" },
+  { id: 10, recent: 6, rating: 4.9, type: "Books", category: "Children", title: "Dog Man and Cat Kid", author: "Dav Pilkey", format: "Paperback", price: 189000, color: "#3f8a3a" },
   // Gifts & stationery (brands the store carries; prices are placeholders)
-  { id: 11, rating: 4.6, type: "Gifts", category: "Gifts", title: "The Really Tiny Book Light", author: "IF", price: 129000, color: "#e8432b", badge: "Gift idea" },
-  { id: 12, rating: 4.7, type: "Gifts", category: "Gifts", title: "Music Box — La Vie en Rose", author: "Kikkerland", price: 159000, color: "#f2c52c", light: true },
+  { id: 11, recent: 9, rating: 4.6, type: "Gifts", category: "Gifts", title: "The Really Tiny Book Light", author: "IF", price: 129000, color: "#e8432b", badge: "Gift idea" },
+  { id: 12, staff: "Ashta District 8", rating: 4.7, type: "Gifts", category: "Gifts", title: "Music Box — La Vie en Rose", author: "Kikkerland", price: 159000, color: "#f2c52c", light: true },
   { id: 13, rating: 4.5, type: "Gifts", category: "Gifts", title: "Mini Wooden Hammer Multi-Tool", author: "Kikkerland", price: 249000, color: "#3d3d3d" },
   { id: 14, rating: 4.4, type: "Gifts", category: "Gifts", title: "Flip-On Bottle Buddy", author: "Kikkerland", price: 99000, color: "#5a7a4c" },
-  { id: 15, rating: 4.8, type: "Stationery", category: "Stationery", title: "Fabulously Flat Paper Pens", author: "IF", price: 189000, color: "#f6f1e6", light: true, badge: "Gift idea" },
-  { id: 16, rating: 4.3, type: "Stationery", category: "Stationery", title: "Cable Ties, set of 6", author: "Kikkerland", price: 79000, color: "#c8396b" },
+  { id: 15, recent: 3, rating: 4.8, type: "Stationery", category: "Stationery", title: "Fabulously Flat Paper Pens", author: "IF", price: 189000, color: "#f6f1e6", light: true, badge: "Gift idea" },
+  { id: 16, staff: "TSM Cibubur", rating: 4.3, type: "Stationery", category: "Stationery", title: "Cable Ties, set of 6", author: "Kikkerland", price: 79000, color: "#c8396b" },
 ];
 
 const TYPES = ["All", "Books", "Gifts", "Stationery"];
@@ -82,6 +82,12 @@ const Cart = {
 };
 
 /* ---------- Cards ---------- */
+function proof(p) {
+  const rows = [];
+  if (p.recent) rows.push(`<span class="proof hot"><i></i>${p.recent} bought in the last 24 hours</span>`);
+  if (p.staff) rows.push(`<span class="proof"><i></i>Recommended by the ${p.staff} team</span>`);
+  return rows.length ? `<div class="proof-row">${rows.join("")}</div>` : "";
+}
 function stars(r) { const n = Math.round(r); return "★".repeat(n) + "☆".repeat(5 - n) + " " + r.toFixed(1); }
 function productCard(p) {
   const isBook = p.type === "Books";
@@ -99,6 +105,7 @@ function productCard(p) {
         <h3>${p.title}</h3>
         <span class="author">${p.author}</span>
         <div class="meta-row"><span class="stars">${stars(p.rating)}</span>${p.format ? `<span class="format">${p.format}</span>` : ""}</div>
+        ${proof(p)}
         <div class="book-foot">
           <span class="price">${money(p.price)}</span>
           <button class="btn btn-dark btn-sm" data-add="${p.id}">Add</button>

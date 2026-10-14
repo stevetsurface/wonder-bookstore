@@ -49,5 +49,6 @@ Then open http://localhost:8080.
 - **WhatsApp numbers** per store are not on the site yet; add them in the contact section of `stores.html`.
 - **Checkout** and the **newsletter / contact forms** are front-end only (they show a confirmation and do not send anything).
 - **FAQ answers** and **star ratings** are drafts; confirm them with the store team.
+- **Social proof lines** on product cards ("N bought in the last 24 hours", "Recommended by the … team") come from the `recent` and `staff` fields in `assets/script.js`. The counts are placeholders: wire them to real sales data or remove them before launch, since invented urgency counters mislead customers.
 - **Ticker messages** live at the top of each HTML file; edit them there.
 - Photos are cropped from the deck PDF at screen resolution; replace with the original files for best quality.
