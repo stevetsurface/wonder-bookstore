@@ -8,9 +8,13 @@ The look follows the "Wonder Bookstore Airport Proposal" deck: signature forest 
 
 https://stevetsurface.github.io/wonder-bookstore/ (GitHub Pages, built from the `main` branch)
 
+## Layout patterns
+
+The home page borrows store-site patterns from storminggravity.com, restyled for Wonder: an announcement ticker, header search with a full-width Shop mega menu, a hero slideshow, product rails with arrows and a progress bar, quick-add on hover, curated "shelf" story tiles, a big impact number, an FAQ accordion with a WhatsApp button, and a newsletter block with a photo.
+
 ## Pages
 
-- `index.html` — home: hero, shop-by-world tiles, bestsellers, concept, coffee shop, gifts, store grid, community, newsletter
+- `index.html` — home: ticker, slideshow, bestseller rail, curated shelves, concept, coffee shop, gifts rail, impact number, store grid, FAQ, community, newsletter
 - `shop.html` — catalogue with Books / Gifts / Stationery tabs, category chips, search and sort
 - `stores.html` — all six stores with Google Maps links, plus the contact section
 - `about.html` — "A life of wonder": who we are, customers, store timeline, publishers and brands
@@ -44,4 +48,6 @@ Then open http://localhost:8080.
 - **Google Maps links** are search links by store name; swap for the exact place links from the deck.
 - **WhatsApp numbers** per store are not on the site yet; add them in the contact section of `stores.html`.
 - **Checkout** and the **newsletter / contact forms** are front-end only (they show a confirmation and do not send anything).
+- **FAQ answers** and **star ratings** are drafts; confirm them with the store team.
+- **Ticker messages** live at the top of each HTML file; edit them there.
 - Photos are cropped from the deck PDF at screen resolution; replace with the original files for best quality.

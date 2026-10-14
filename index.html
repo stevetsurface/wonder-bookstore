@@ -12,12 +12,34 @@
   <meta name="description" content="Wonder Bookstore: books, gifts, stationery, toys and coffee in six welcoming stores across Jakarta and Bali.">
 </head>
 <body>
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track">
+      <span><a href="stores.html#pim5">Now open: Pondok Indah Mall 5</a></span><span><a href="index.html#coffee">Wonder Coffee at Ashta &amp; Berawa</a></span><span>Six stores across Jakarta &amp; Bali</span><span><a href="https://www.instagram.com/wonderbookstoreofficial" target="_blank" rel="noopener">Follow @wonderbookstoreofficial</a></span>
+      <span><a href="stores.html#pim5">Now open: Pondok Indah Mall 5</a></span><span><a href="index.html#coffee">Wonder Coffee at Ashta &amp; Berawa</a></span><span>Six stores across Jakarta &amp; Bali</span><span><a href="https://www.instagram.com/wonderbookstoreofficial" target="_blank" rel="noopener">Follow @wonderbookstoreofficial</a></span>
+    </div>
+  </div>
   <header class="site-header">
     <div class="container nav">
       <a class="brand" href="index.html">Wonder <img class="brand-mark" src="assets/logo-mark.svg" alt=""> Bookstore</a>
+      <form class="nav-search" data-search-form role="search">
+        <input type="search" placeholder="Search titles, authors, brands" aria-label="Search">
+        <button type="submit" aria-label="Search">↗</button>
+      </form>
       <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="shop.html">Shop</a></li>
+        <li class="has-menu"><a href="shop.html">Shop <span class="chev">▼</span></a>
+          <div class="mega"><div class="mega-panel">
+            <div><h5>Books</h5><ul>
+              <li><a href="shop.html?cat=Fiction">Fiction</a></li><li><a href="shop.html?cat=Classics">Classics</a></li><li><a href="shop.html?cat=Business">Business</a></li><li><a href="shop.html?cat=Self-Development">Self-development</a></li><li><a href="shop.html?cat=Children">Children &amp; young readers</a></li><li><a href="shop.html?type=Books">All books ↗</a></li>
+            </ul></div>
+            <div><h5>Gifts &amp; stationery</h5><ul>
+              <li><a href="shop.html?type=Gifts">Design gifts</a></li><li><a href="shop.html?type=Stationery">Stationery</a></li><li><a href="shop.html?q=Kikkerland">Kikkerland</a></li><li><a href="shop.html?q=IF">IF</a></li><li><a href="about.html">Brands we carry</a></li>
+            </ul></div>
+            <div><h5>Wonder</h5><ul>
+              <li><a href="index.html#stories">Curated shelves</a></li><li><a href="index.html#coffee">Wonder Coffee</a></li><li><a href="stores.html">Store locations</a></li><li><a href="index.html#faq">FAQ</a></li>
+            </ul></div>
+            <a class="mega-feature" href="shop.html?type=Books"><img src="assets/img/interior-ashta.jpg" alt=""><span>On the bestseller wall ↗</span></a>
+          </div></div>
+        </li>
         <li><a href="stores.html">Stores</a></li>
         <li><a href="about.html">About</a></li>
       </ul>
@@ -29,25 +51,53 @@
   </header>
 
   <main>
-    <section class="hero green">
-      <div class="container hero-grid">
-        <div>
-          <h1>Everything gets better with books &amp; coffee</h1>
-          <p class="lead">Books and beautiful tools that inspire discovery, growth and everyday joy. Six stores across Jakarta and Bali, and a shelf for every kind of curious.</p>
-          <div class="hero-actions">
-            <a class="btn btn-solid" href="shop.html">Shop the shelves ↗</a>
-            <a class="btn" href="stores.html">Find a store ↗</a>
+    <section class="slideshow" data-slideshow>
+      <div class="slide active">
+        <div class="container slide-grid">
+          <div>
+            <div class="eyebrow">A life of wonder</div>
+            <h1>Everything gets better with books &amp; coffee</h1>
+            <p class="lead">Books and beautiful tools that inspire discovery, growth and everyday joy. Six stores across Jakarta and Bali, and a shelf for every kind of curious.</p>
+            <div class="hero-actions">
+              <a class="btn btn-solid" href="shop.html">Shop the shelves ↗</a>
+              <a class="btn" href="stores.html">Find a store ↗</a>
+            </div>
           </div>
-          <div class="hero-facts">
-            <div><strong>Six</strong>stores since 2022</div>
-            <div><strong>Four</strong>in Greater Jakarta</div>
-            <div><strong>Two</strong>in Bali</div>
-          </div>
+          <div class="photo"><img src="assets/img/store-hublife.jpg" alt="Wonder Bookstore storefront at Hublife"><span class="corner">↗</span><span class="cap">Hublife · West Jakarta</span></div>
         </div>
-        <div class="photo">
-          <img src="assets/img/store-hublife.jpg" alt="Wonder Bookstore storefront at Hublife, West Jakarta">
-          <span class="corner">↗</span>
-          <span class="cap">Hublife · West Jakarta</span>
+      </div>
+      <div class="slide">
+        <div class="container slide-grid">
+          <div>
+            <div class="eyebrow">Now open · March 2026</div>
+            <h1>Pondok Indah Mall 5</h1>
+            <p class="lead">Our sixth store and the newest Wonder in South Jakarta. Books, gifts, stationery and a children's corner, all under the signature green.</p>
+            <div class="hero-actions">
+              <a class="btn btn-solid" href="stores.html#pim5">Visit the store ↗</a>
+              <a class="btn" href="stores.html">All six stores ↗</a>
+            </div>
+          </div>
+          <div class="photo"><img src="assets/img/store-pim5.jpg" alt="Wonder Bookstore at Pondok Indah Mall 5"><span class="corner">↗</span><span class="cap">Pondok Indah Mall 5 · South Jakarta</span></div>
+        </div>
+      </div>
+      <div class="slide">
+        <div class="container slide-grid">
+          <div>
+            <div class="eyebrow">Wonder Coffee</div>
+            <h1>Read it with a cup</h1>
+            <p class="lead">A coffee counter inside the bookstore, so the book you just found doesn't have to wait until you get home. Open at Ashta District 8 and Berawa, Bali.</p>
+            <div class="hero-actions">
+              <a class="btn btn-solid" href="#coffee">About Wonder Coffee ↗</a>
+              <a class="btn" href="stores.html#berawa">Berawa, Bali ↗</a>
+            </div>
+          </div>
+          <div class="photo"><img src="assets/img/coffee-counter.jpg" alt="Wonder Coffee counter"><span class="corner">↗</span><span class="cap">Wonder Coffee · Berawa</span></div>
+        </div>
+      </div>
+      <div class="slide-controls">
+        <div class="container">
+          <div class="dots"></div>
+          <div class="slide-arrows"><button class="arrow-btn" data-prev aria-label="Previous">←</button><button class="arrow-btn" data-next aria-label="Next">→</button></div>
         </div>
       </div>
     </section>
@@ -59,37 +109,44 @@
       </div>
     </div>
 
-    <section class="section light">
+    <section class="section light" style="padding-bottom:48px">
       <div class="container">
-        <div class="section-head">
-          <div>
-            <div class="label muted" style="margin-bottom:12px">Explore</div>
-            <h2>Shop by world</h2>
-          </div>
-          <p class="muted">Books, gifts, stationery and toys together in one welcoming space. Start anywhere.</p>
+        <div class="rail-head">
+          <div><div class="label muted" style="margin-bottom:10px">On the bestseller wall</div><h2>What we're into right now</h2></div>
+          <a class="link" href="shop.html?type=Books">Check all books ↗</a>
         </div>
-        <div class="worlds">
-          <a class="world" href="shop.html?type=Books"><img src="assets/img/interior-ashta.jpg" alt=""><div class="txt"><h3>Books<small>Fiction, business, self-help, kids</small></h3><span class="arrow">↗</span></div></a>
-          <a class="world" href="shop.html?type=Gifts"><img src="assets/img/season-tree.jpg" alt=""><div class="txt"><h3>Gifts<small>Kikkerland, Fred &amp; Friends, IF</small></h3><span class="arrow">↗</span></div></a>
-          <a class="world" href="shop.html?type=Stationery"><img src="assets/img/interior-pim5.jpg" alt=""><div class="txt"><h3>Stationery<small>Pens, paper, desk things</small></h3><span class="arrow">↗</span></div></a>
-          <a class="world" href="shop.html?cat=Children"><img src="assets/img/interior-cibubur.jpg" alt=""><div class="txt"><h3>Kids &amp; toys<small>Picture, activity and sticker books</small></h3><span class="arrow">↗</span></div></a>
-          <a class="world" href="#coffee"><img src="assets/img/coffee-counter.jpg" alt=""><div class="txt"><h3>Coffee<small>Wonder Coffee at Ashta &amp; Berawa</small></h3><span class="arrow">↗</span></div></a>
+        <div class="rail-wrap" data-rail-wrap>
+          <div class="rail book-grid" data-featured></div>
+          <div class="rail-foot">
+            <div class="progress"><span></span></div>
+            <div class="slide-arrows"><button class="arrow-btn" data-prev aria-label="Previous">←</button><button class="arrow-btn" data-next aria-label="Next">→</button></div>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="section light" style="padding-top:0">
+    <section class="section light" id="stories" style="padding-top:48px">
       <div class="container">
         <div class="section-head">
-          <div>
-            <div class="label muted" style="margin-bottom:12px">On the bestseller wall</div>
-            <h2>What's moving</h2>
-          </div>
-          <a class="btn btn-dark" href="shop.html?type=Books">All books ↗</a>
+          <div><div class="label muted" style="margin-bottom:12px">Curated shelves</div><h2>Shelves with a point of view</h2></div>
+          <p class="muted">Not just categories. Each shelf is put together by the store team around a moment in your life.</p>
         </div>
-        <div class="book-grid" data-featured></div>
+        <div class="stories">
+          <a class="story" href="shop.html?cat=Self-Development"><img src="assets/img/interior-ashta.jpg" alt=""><span class="arrow">↗</span><div class="txt"><h3>Ideas to improve your life</h3><p>Business and self-development for the career-focused and the curious. The shelf our regulars come back to.</p></div></a>
+          <a class="story" href="shop.html?cat=Fiction"><img src="assets/img/customers-reading.jpg" alt=""><span class="arrow">↗</span><div class="txt"><h3>A read for the flight</h3><p>Bestsellers, fiction and travel reads that are easy to pick before boarding and hard to put down after.</p></div></a>
+          <a class="story" href="shop.html?cat=Children"><img src="assets/img/interior-cibubur.jpg" alt=""><span class="arrow">↗</span><div class="txt"><h3>For young travellers</h3><p>Activity, sticker and picture books for the journey, and first chapter books for when they get home.</p></div></a>
+          <a class="story" href="shop.html?type=Gifts"><img src="assets/img/season-tree.jpg" alt=""><span class="arrow">↗</span><div class="txt"><h3>A last-minute gift</h3><p>Design gifts and stationery for people who want something thoughtful, not something generic.</p></div></a>
+          <a class="story" href="shop.html?cat=Classics"><img src="assets/img/interior-pim5.jpg" alt=""><span class="arrow">↗</span><div class="txt"><h3>Classics, finally</h3><p>The ones you have been meaning to read, in editions worth keeping on the shelf.</p></div></a>
+          <a class="story" href="#coffee"><img src="assets/img/coffee-seating.jpg" alt=""><span class="arrow">↗</span><div class="txt"><h3>Books &amp; coffee</h3><p>Stay a while. Wonder Coffee at Ashta and Berawa is where book clubs and quiet afternoons happen.</p></div></a>
+        </div>
       </div>
     </section>
+
+    <div class="marquee" aria-hidden="true" style="background:var(--green);color:var(--white);border-top:1px solid var(--line-dark)">
+      <div class="marquee-track">
+        <span>Everything gets better with books &amp; coffee</span><span>Everything gets better with books &amp; coffee</span><span>Everything gets better with books &amp; coffee</span><span>Everything gets better with books &amp; coffee</span>
+      </div>
+    </div>
 
     <section class="section green">
       <div class="container">
@@ -101,7 +158,6 @@
           <div class="concept-copy">
             <p>Wonder Bookstore is designed as a space where book seekers can explore, discover, and satisfy their curiosity. Rather than simply providing a place to purchase books, the store creates an environment that encourages customers to stay, browse, and discover something beyond what they initially came looking for.</p>
             <p>The store's signature green creates a strong sense of identity while bringing warmth, belonging, and cosiness. Combined with carefully considered lighting, the interior is designed to feel comfortable and inviting rather than overly bright or intimidating.</p>
-            <p>Ultimately, we want Wonder to feel less like a place filled with books and more like a welcoming space filled with possibilities.</p>
           </div>
         </div>
         <div class="photo-row">
@@ -130,26 +186,38 @@
       </div>
     </section>
 
-    <section class="section light">
+    <section class="section light" style="padding-bottom:48px">
       <div class="container">
-        <div class="section-head">
-          <div>
-            <div class="label muted" style="margin-bottom:12px">Gifts &amp; stationery</div>
-            <h2>Beautiful tools</h2>
-          </div>
-          <a class="btn btn-dark" href="shop.html?type=Gifts">All gifts ↗</a>
+        <div class="rail-head">
+          <div><div class="label muted" style="margin-bottom:10px">Gifts &amp; stationery</div><h2>Beautiful tools</h2></div>
+          <a class="link" href="shop.html?type=Gifts">All gifts ↗</a>
         </div>
-        <div class="book-grid" data-gifts></div>
+        <div class="rail-wrap" data-rail-wrap>
+          <div class="rail book-grid" data-gifts></div>
+          <div class="rail-foot">
+            <div class="progress"><span></span></div>
+            <div class="slide-arrows"><button class="arrow-btn" data-prev aria-label="Previous">←</button><button class="arrow-btn" data-next aria-label="Next">→</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section light impact" style="padding-top:48px">
+      <div class="container">
+        <div class="big">SIX</div>
+        <div class="sub">Stores across Jakarta &amp; Bali since 2022</div>
+        <div class="impact-grid">
+          <div><strong>2000</strong><span>Sinar Starbooks, our parent company, has imported English-language books since 2000.</span></div>
+          <div><strong>Direct</strong><span>Bought direct from leading US and UK publishers, so new titles land fast.</span></div>
+          <div><strong>Two</strong><span>Wonder Coffee counters, at Ashta District 8 and Berawa, Bali.</span></div>
+        </div>
       </div>
     </section>
 
     <section class="section light" style="padding-top:0">
       <div class="container">
         <div class="section-head">
-          <div>
-            <div class="label muted" style="margin-bottom:12px">Six stores since 2022</div>
-            <h2>Find us</h2>
-          </div>
+          <div><div class="label muted" style="margin-bottom:12px">Six stores since 2022</div><h2>Find us</h2></div>
           <a class="btn btn-dark" href="stores.html">All stores ↗</a>
         </div>
         <div class="stores">
@@ -159,6 +227,26 @@
           <a class="store" href="stores.html#berawa"><div class="photo"><img src="assets/img/store-berawa.jpg" alt=""></div><div class="store-body"><span class="since">Since May 2025</span><h3>Berawa</h3><p>Canggu, Bali</p><div class="perks"><span>Books</span><span>Gifts</span><span>Coffee</span></div></div></a>
           <a class="store" href="stores.html#tsmbali"><div class="photo"><img src="assets/img/store-tsmbali.jpg" alt=""></div><div class="store-body"><span class="since">Since Jul 2025</span><h3>TSM Bali</h3><p>Denpasar, Bali</p><div class="perks"><span>Books</span><span>Gifts</span><span>Kids</span></div></div></a>
           <a class="store" href="stores.html#pim5"><div class="photo"><img src="assets/img/store-pim5.jpg" alt=""></div><div class="store-body"><span class="since">Since Mar 2026</span><h3>Pondok Indah Mall 5</h3><p>Pondok Indah, South Jakarta</p><div class="perks"><span>Books</span><span>Gifts</span><span>Kids</span></div></div></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section light faq" id="faq" style="padding-top:0">
+      <div class="container">
+        <div class="faq-grid">
+          <div>
+            <h2>FAQ</h2>
+            <p class="muted">Each store has its own team on WhatsApp. For anything about a title, an order or an event, that is the fastest way to reach us.</p>
+            <a class="btn wa" href="stores.html#contact">We prefer WhatsApp ↗</a>
+          </div>
+          <div>
+            <details><summary>Do you sell English-language books?</summary><p>Yes. Our range is imported English-language titles across business, self-development, fiction and classics, fantasy, romance, children's and young readers, manga and graphic novels, bought direct from US and UK publishers.</p></details>
+            <details><summary>Can you find a title that isn't on the shelf?</summary><p>Ask the store team on WhatsApp. They can check the other five stores and the Sinar Starbooks warehouse for you.</p></details>
+            <details><summary>Where can I buy online?</summary><p>Through Wonder's official online shops. Online order support runs through our official contact directory, and every store also sells in person.</p></details>
+            <details><summary>Which stores have Wonder Coffee?</summary><p>Ashta District 8 in SCBD and Berawa in Canggu, Bali. Both are open for a coffee whether or not you are buying a book.</p></details>
+            <details><summary>Do you host events or collaborations?</summary><p>Yes. Author launches, kids' activities, brand collaborations and anniversaries happen across the stores. A separate contact handles Instagram and collaboration enquiries.</p></details>
+            <details><summary>What are the opening hours?</summary><p>Stores open daily during their mall's hours. Berawa is a street-level store and opens daily. Check each store's page for the Maps link.</p></details>
+          </div>
         </div>
       </div>
     </section>
@@ -181,17 +269,17 @@
 
     <section class="section light">
       <div class="container">
-        <div class="newsletter">
-          <div>
-            <h2>New arrivals, first.</h2>
-            <p>A short note when new titles land and when there's something happening in store. No noise.</p>
-          </div>
-          <div>
-            <form data-demo-form>
+        <div class="newsletter with-photo">
+          <div class="photo"><img src="assets/img/storefront-detail.jpg" alt="Wonder Bookstore shelves"></div>
+          <div class="nl-body">
+            <div class="at">@</div>
+            <h2>Sign up for new stories and personal offers</h2>
+            <p>A short note when new titles land and when something is happening in store. No noise.</p>
+            <form data-demo-form style="margin-top:22px">
               <input type="email" placeholder="you@example.com" required aria-label="Email address">
               <button class="btn btn-solid" type="submit">Subscribe ↗</button>
             </form>
-            <p class="form-note">Unsubscribe any time.</p>
+            <p class="form-note">Only good content, we promise. Unsubscribe any time.</p>
           </div>
         </div>
       </div>
@@ -205,6 +293,11 @@
           <a class="brand" href="index.html">Wonder <img class="brand-mark" src="assets/logo-mark.svg" alt=""> Bookstore</a>
           <div class="footer-big">Everything gets better<br>with books &amp; coffee</div>
           <p class="muted" style="max-width:360px;margin:0">Books, gifts, stationery and toys in welcoming spaces where people of all ages can explore and connect. Six stores across Jakarta and Bali.</p>
+          <div class="socials">
+            <a href="https://www.instagram.com/wonderbookstoreofficial" target="_blank" rel="noopener" aria-label="Instagram">IG</a>
+            <a href="stores.html#contact" aria-label="WhatsApp">WA</a>
+            <a href="https://www.wonderstore.co.id" target="_blank" rel="noopener" aria-label="Website">WEB</a>
+          </div>
         </div>
         <div>
           <h4 class="label">Shop</h4>

@@ -2,23 +2,23 @@
 
 const PRODUCTS = [
   // Books (titles carried per the store's product highlights; prices are placeholders)
-  { id: 1,  type: "Books", category: "Self-Development", title: "Atomic Habits", author: "James Clear", price: 289000, color: "#f4efe4", light: true, badge: "Bestseller" },
-  { id: 2,  type: "Books", category: "Fiction", title: "The Silent Patient", author: "Alex Michaelides", price: 199000, color: "#2b2b2b", badge: "Bestseller" },
-  { id: 3,  type: "Books", category: "Business", title: "The Art of Thinking Clearly", author: "Rolf Dobelli", price: 229000, color: "#dfe5d3", light: true },
-  { id: 4,  type: "Books", category: "Classics", title: "The Art of War", author: "Sun Tzu", price: 149000, color: "#6b2f2a" },
-  { id: 5,  type: "Books", category: "Self-Development", title: "When Things Don't Go Your Way", author: "Haemin Sunim", price: 259000, color: "#f0b84a", light: true, badge: "Staff pick" },
-  { id: 6,  type: "Books", category: "Children", title: "Dog Man: A Tale of Two Kitties", author: "Dav Pilkey", price: 189000, color: "#1e5fa8" },
-  { id: 7,  type: "Books", category: "Fiction", title: "The Stranger in the Lifeboat", author: "Mitch Albom", price: 219000, color: "#1b3a5c" },
-  { id: 8,  type: "Books", category: "Fiction", title: "The Five People You Meet in Heaven", author: "Mitch Albom", price: 199000, color: "#e8dcc4", light: true },
-  { id: 9,  type: "Books", category: "Self-Development", title: "The Book You Wish Your Parents Had Read", author: "Philippa Perry", price: 249000, color: "#e2521f", badge: "Staff pick" },
-  { id: 10, type: "Books", category: "Children", title: "Dog Man and Cat Kid", author: "Dav Pilkey", price: 189000, color: "#3f8a3a" },
+  { id: 1, rating: 4.9,  type: "Books", category: "Self-Development", title: "Atomic Habits", author: "James Clear", format: "Hardcover", price: 289000, color: "#f4efe4", light: true, badge: "Bestseller" },
+  { id: 2, rating: 4.7,  type: "Books", category: "Fiction", title: "The Silent Patient", author: "Alex Michaelides", format: "Paperback", price: 199000, color: "#2b2b2b", badge: "Bestseller" },
+  { id: 3, rating: 4.6,  type: "Books", category: "Business", title: "The Art of Thinking Clearly", author: "Rolf Dobelli", format: "Paperback", price: 229000, color: "#dfe5d3", light: true },
+  { id: 4, rating: 4.5,  type: "Books", category: "Classics", title: "The Art of War", author: "Sun Tzu", format: "Paperback", price: 149000, color: "#6b2f2a" },
+  { id: 5, rating: 4.8,  type: "Books", category: "Self-Development", title: "When Things Don't Go Your Way", author: "Haemin Sunim", format: "Paperback", price: 259000, color: "#f0b84a", light: true, badge: "Staff pick" },
+  { id: 6, rating: 4.9,  type: "Books", category: "Children", title: "Dog Man: A Tale of Two Kitties", author: "Dav Pilkey", format: "Paperback", price: 189000, color: "#1e5fa8" },
+  { id: 7, rating: 4.5,  type: "Books", category: "Fiction", title: "The Stranger in the Lifeboat", author: "Mitch Albom", format: "Paperback", price: 219000, color: "#1b3a5c" },
+  { id: 8, rating: 4.7,  type: "Books", category: "Fiction", title: "The Five People You Meet in Heaven", author: "Mitch Albom", format: "Paperback", price: 199000, color: "#e8dcc4", light: true },
+  { id: 9, rating: 4.8,  type: "Books", category: "Self-Development", title: "The Book You Wish Your Parents Had Read", author: "Philippa Perry", format: "Hardcover", price: 249000, color: "#e2521f", badge: "Staff pick" },
+  { id: 10, rating: 4.9, type: "Books", category: "Children", title: "Dog Man and Cat Kid", author: "Dav Pilkey", format: "Paperback", price: 189000, color: "#3f8a3a" },
   // Gifts & stationery (brands the store carries; prices are placeholders)
-  { id: 11, type: "Gifts", category: "Gifts", title: "The Really Tiny Book Light", author: "IF", price: 129000, color: "#e8432b", badge: "Gift idea" },
-  { id: 12, type: "Gifts", category: "Gifts", title: "Music Box — La Vie en Rose", author: "Kikkerland", price: 159000, color: "#f2c52c", light: true },
-  { id: 13, type: "Gifts", category: "Gifts", title: "Mini Wooden Hammer Multi-Tool", author: "Kikkerland", price: 249000, color: "#3d3d3d" },
-  { id: 14, type: "Gifts", category: "Gifts", title: "Flip-On Bottle Buddy", author: "Kikkerland", price: 99000, color: "#5a7a4c" },
-  { id: 15, type: "Stationery", category: "Stationery", title: "Fabulously Flat Paper Pens", author: "IF", price: 189000, color: "#f6f1e6", light: true, badge: "Gift idea" },
-  { id: 16, type: "Stationery", category: "Stationery", title: "Cable Ties, set of 6", author: "Kikkerland", price: 79000, color: "#c8396b" },
+  { id: 11, rating: 4.6, type: "Gifts", category: "Gifts", title: "The Really Tiny Book Light", author: "IF", price: 129000, color: "#e8432b", badge: "Gift idea" },
+  { id: 12, rating: 4.7, type: "Gifts", category: "Gifts", title: "Music Box — La Vie en Rose", author: "Kikkerland", price: 159000, color: "#f2c52c", light: true },
+  { id: 13, rating: 4.5, type: "Gifts", category: "Gifts", title: "Mini Wooden Hammer Multi-Tool", author: "Kikkerland", price: 249000, color: "#3d3d3d" },
+  { id: 14, rating: 4.4, type: "Gifts", category: "Gifts", title: "Flip-On Bottle Buddy", author: "Kikkerland", price: 99000, color: "#5a7a4c" },
+  { id: 15, rating: 4.8, type: "Stationery", category: "Stationery", title: "Fabulously Flat Paper Pens", author: "IF", price: 189000, color: "#f6f1e6", light: true, badge: "Gift idea" },
+  { id: 16, rating: 4.3, type: "Stationery", category: "Stationery", title: "Cable Ties, set of 6", author: "Kikkerland", price: 79000, color: "#c8396b" },
 ];
 
 const TYPES = ["All", "Books", "Gifts", "Stationery"];
@@ -82,6 +82,7 @@ const Cart = {
 };
 
 /* ---------- Cards ---------- */
+function stars(r) { const n = Math.round(r); return "★".repeat(n) + "☆".repeat(5 - n) + " " + r.toFixed(1); }
 function productCard(p) {
   const isBook = p.type === "Books";
   return `
@@ -91,11 +92,13 @@ function productCard(p) {
         ${p.badge ? `<span class="badge">${p.badge}</span>` : ""}
         <div class="cover-title">${p.title}</div>
         ${isBook ? `<div class="cover-author">${p.author}</div>` : ""}
+        <div class="quick-add"><button class="btn btn-sm" data-add="${p.id}">Quick add ↗</button></div>
       </div>
       <div class="book-body">
         <span class="cat">${p.category}</span>
         <h3>${p.title}</h3>
         <span class="author">${p.author}</span>
+        <div class="meta-row"><span class="stars">${stars(p.rating)}</span>${p.format ? `<span class="format">${p.format}</span>` : ""}</div>
         <div class="book-foot">
           <span class="price">${money(p.price)}</span>
           <button class="btn btn-dark btn-sm" data-add="${p.id}">Add</button>
@@ -127,6 +130,7 @@ function initShop() {
   const params = new URLSearchParams(location.search);
   let type = TYPES.includes(params.get("type")) ? params.get("type") : "All";
   let category = params.get("cat") || "All";
+  if (params.get("q")) search.value = params.get("q");
 
   function categoriesFor(t) {
     const list = PRODUCTS.filter(p => t === "All" || p.type === t).map(p => p.category);
@@ -172,9 +176,70 @@ function initShop() {
 /* ---------- Home ---------- */
 function initHome() {
   const featured = document.querySelector("[data-featured]");
-  if (featured) featured.innerHTML = PRODUCTS.filter(p => p.badge === "Bestseller" || p.badge === "Staff pick").slice(0, 4).map(productCard).join("");
+  if (featured) featured.innerHTML = PRODUCTS.filter(p => p.type === "Books").sort((a, b) => (b.badge ? 1 : 0) - (a.badge ? 1 : 0)).map(productCard).join("");
   const gifts = document.querySelector("[data-gifts]");
-  if (gifts) gifts.innerHTML = PRODUCTS.filter(p => p.type !== "Books").slice(0, 4).map(productCard).join("");
+  if (gifts) gifts.innerHTML = PRODUCTS.filter(p => p.type !== "Books").map(productCard).join("");
+  const kids = document.querySelector("[data-kids]");
+  if (kids) kids.innerHTML = PRODUCTS.filter(p => p.category === "Children" || p.category === "Self-Development").map(productCard).join("");
+}
+
+/* ---------- Rails (horizontal carousels) ---------- */
+function initRails() {
+  document.querySelectorAll("[data-rail-wrap]").forEach(wrap => {
+    const rail = wrap.querySelector(".rail");
+    const prev = wrap.querySelector("[data-prev]");
+    const next = wrap.querySelector("[data-next]");
+    const bar = wrap.querySelector(".progress span");
+    const step = () => (rail.firstElementChild ? rail.firstElementChild.getBoundingClientRect().width + 20 : 300);
+    function update() {
+      const max = rail.scrollWidth - rail.clientWidth;
+      const frac = rail.clientWidth / rail.scrollWidth;
+      if (bar) { bar.style.width = (frac * 100) + "%"; bar.style.left = (max > 0 ? (rail.scrollLeft / max) * (100 - frac * 100) : 0) + "%"; }
+      if (prev) prev.disabled = rail.scrollLeft <= 2;
+      if (next) next.disabled = rail.scrollLeft >= max - 2;
+    }
+    if (prev) prev.addEventListener("click", () => rail.scrollBy({ left: -step() * 2, behavior: "smooth" }));
+    if (next) next.addEventListener("click", () => rail.scrollBy({ left: step() * 2, behavior: "smooth" }));
+    rail.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    update();
+  });
+}
+
+/* ---------- Hero slideshow ---------- */
+function initSlideshow() {
+  const show = document.querySelector("[data-slideshow]");
+  if (!show) return;
+  const slides = [...show.querySelectorAll(".slide")];
+  const dots = show.querySelector(".dots");
+  let i = 0, timer;
+  dots.innerHTML = slides.map((_, k) => `<button aria-label="Slide ${k + 1}"></button>`).join("");
+  const dotEls = [...dots.children];
+  function go(n) {
+    i = (n + slides.length) % slides.length;
+    slides.forEach((s, k) => s.classList.toggle("active", k === i));
+    dotEls.forEach((d, k) => d.classList.toggle("active", k === i));
+  }
+  function auto() { clearInterval(timer); timer = setInterval(() => go(i + 1), 6000); }
+  dotEls.forEach((d, k) => d.addEventListener("click", () => { go(k); auto(); }));
+  show.querySelector("[data-prev]").addEventListener("click", () => { go(i - 1); auto(); });
+  show.querySelector("[data-next]").addEventListener("click", () => { go(i + 1); auto(); });
+  go(0); auto();
+}
+
+/* ---------- Header: search + mega menu (mobile tap) ---------- */
+function initHeader() {
+  const form = document.querySelector("[data-search-form]");
+  if (form) form.addEventListener("submit", e => {
+    e.preventDefault();
+    const q = form.querySelector("input").value.trim();
+    location.href = "shop.html" + (q ? "?q=" + encodeURIComponent(q) : "");
+  });
+  document.querySelectorAll(".nav-links li.has-menu > a").forEach(a => {
+    a.addEventListener("click", e => {
+      if (window.matchMedia("(max-width: 680px)").matches) { e.preventDefault(); a.parentElement.classList.toggle("open"); }
+    });
+  });
 }
 
 /* ---------- Forms ---------- */
@@ -191,7 +256,7 @@ function initForms() {
 
 /* ---------- Wiring ---------- */
 document.addEventListener("DOMContentLoaded", () => {
-  Cart.load(); Cart.render(); initHome(); initShop(); initForms();
+  Cart.load(); Cart.render(); initHome(); initShop(); initForms(); initRails(); initSlideshow(); initHeader();
 
   const path = location.pathname.split("/").pop() || "index.html";
   document.querySelectorAll(".nav-links a").forEach(a => { if (a.getAttribute("href") === path) a.classList.add("active"); });
