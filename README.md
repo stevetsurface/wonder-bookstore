@@ -18,17 +18,22 @@ The site is bilingual (ID / EN) with a toggle in the header. The browser languag
 
 ## Shop features
 
-- Bestseller rank pills ("BEST SELLER #1" / "TERLARIS #1") on the top five by the `sold` field
-- Collections: All titles / Bestsellers / Staff picks / New arrivals
+- Bestseller rank pills ("BEST SELLER #1" / "TERLARIS #1") on the top five by units sold
+- Collections: All titles / Bestsellers / Store favourites / In stock, plus a brand filter
 - Views: grid, list and compact (remembered per browser)
 - "Trending in store" strip with a "Just bought" line, on the shop and home pages
 - Hover mini-cart on the bag button (desktop), plus the slide-in bag drawer
+
+## Catalogue data
+
+`assets/products.js` holds the catalogue: 104 books from the Sinar Starbooks catalogue (title, author, publisher, retail price, category, units sold in April, stock, ISBN) plus six gift and stationery items. Cover images are in `assets/covers/` (80 of the 104 titles have one; the rest show a coloured tile). Brand logos are in `assets/logos/`. Bestseller ranks, the trending strip, "sold last month" lines and "store favourites" (the top seller per category) are all computed from the real unit sales.
 
 ## Pages
 
 - `index.html` — home: ticker, slideshow, bestseller rail, curated shelves, concept, coffee shop, gifts rail, impact number, store grid, FAQ, community, newsletter
 - `shop.html` — catalogue with Books / Gifts / Stationery tabs, category chips, search and sort
 - `stores.html` — all six stores with Google Maps links, plus the contact section
+- `brands.html` — publishers and brands with logos, linking to the shop filtered by brand
 - `about.html` — "A life of wonder": who we are, customers, store timeline, publishers and brands
 
 ## Files
@@ -55,13 +60,12 @@ Then open http://localhost:8080.
 
 ## Placeholders to replace before launch
 
-- **Prices** in `assets/script.js` are placeholders in rupiah. Titles and brands are the ones highlighted in the deck.
+- **Book prices and sales** are real (Sinar Starbooks catalogue, April units). **Gift and stationery prices** are still placeholders.
 - **Opening hours** are written as "open daily during mall hours"; replace with real hours per store.
 - **Google Maps links** are search links by store name; swap for the exact place links from the deck.
 - **WhatsApp numbers** per store are not on the site yet; add them in the contact section of `stores.html`.
 - **Checkout** and the **newsletter / contact forms** are front-end only (they show a confirmation and do not send anything).
-- **FAQ answers** and **star ratings** are drafts; confirm them with the store team.
-- **Sales counts** (`sold`) behind the bestseller ranks and the trending strip, and the "Just bought" line, are placeholders.
-- **Social proof lines** on product cards ("N bought in the last 24 hours", "Recommended by the … team") come from the `recent` and `staff` fields in `assets/script.js`. The counts are placeholders: wire them to real sales data or remove them before launch, since invented urgency counters mislead customers.
+- **FAQ answers** are drafts; confirm them with the store team.
+- **Social proof lines** now read from real data: "N sold last month" and "#1 in <category> last month". Refresh `assets/products.js` monthly so they stay true.
 - **Ticker messages** live at the top of each HTML file; edit them there.
 - Photos are cropped from the deck PDF at screen resolution; replace with the original files for best quality.

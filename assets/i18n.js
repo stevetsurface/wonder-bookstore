@@ -127,6 +127,15 @@ window.PAGE_I18N = {
   "Book publishers": "Penerbit buku",
   "Come and stay a while.": "Datang dan berlama-lamalah.", "Six stores, open daily. Browse, read, have a coffee, and discover something you weren't looking for.": "Enam toko, buka setiap hari. Lihat-lihat, membaca, ngopi, dan temukan sesuatu yang tidak Anda cari.",
   "Shop online ↗": "Belanja online ↗",
+  /* brands */
+  "TITLE:Brands — Wonder Bookstore": "Brand — Wonder Bookstore",
+  "Brands": "Brand", "Publishers &amp; brands": "Penerbit &amp; brand", "Comics &amp; manga": "Komik &amp; manga", "Psychology": "Psikologi",
+  "We buy direct from leading US and UK publishers through Sinar Starbooks, so titles reach Indonesia faster and with reliable supply. Gifts and stationery come from design brands we love.": "Kami membeli langsung dari penerbit terkemuka AS dan Inggris lewat Sinar Starbooks, sehingga buku tiba di Indonesia lebih cepat dengan pasokan yang andal. Hadiah dan alat tulis datang dari brand desain yang kami sukai.",
+  "Shop by brand": "Belanja per brand",
+  "Click a brand to see its titles in the shop. Selected publishers and brands; availability varies by title and store.": "Klik brand untuk melihat judulnya di toko. Penerbit dan brand pilihan; ketersediaan berbeda per judul dan toko.",
+  "Direct from the source": "Langsung dari sumbernya",
+  "Sinar Starbooks, our parent company, has imported English-language books since 2000 and works directly with Penguin Random House, HarperCollins, Hachette, Simon &amp; Schuster, Macmillan and Bloomsbury, plus gift brands such as Kikkerland and Fred &amp; Friends.": "Sinar Starbooks, induk perusahaan kami, mengimpor buku berbahasa Inggris sejak 2000 dan bekerja langsung dengan Penguin Random House, HarperCollins, Hachette, Simon &amp; Schuster, Macmillan, dan Bloomsbury, serta brand hadiah seperti Kikkerland dan Fred &amp; Friends.",
+  "About Wonder ↗": "Tentang Wonder ↗",
   /* trending strip */
   "Trending in store": "Sedang ramai di toko", "Most bought this week across six stores": "Paling banyak dibeli minggu ini di enam toko",
   "Bestsellers": "Terlaris", "Staff picks": "Pilihan staf", "New arrivals": "Baru datang"

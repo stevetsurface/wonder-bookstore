@@ -1,30 +1,26 @@
 /* Wonder Bookstore — catalogue, bag, filters, views, language */
 
-const PRODUCTS = [
-  // Books (titles from the store's product highlights; prices, sales counts and ratings are placeholders)
-  { id: 1,  type: "Books", category: "Self-Development", title: "Atomic Habits", author: "James Clear", format: "Hardcover", price: 289000, color: "#f4efe4", light: true, rating: 4.9, sold: 96, recent: 7, staff: "Ashta District 8" },
-  { id: 2,  type: "Books", category: "Fiction", title: "The Silent Patient", author: "Alex Michaelides", format: "Paperback", price: 199000, color: "#2b2b2b", rating: 4.7, sold: 81, recent: 4 },
-  { id: 3,  type: "Books", category: "Business", title: "The Art of Thinking Clearly", author: "Rolf Dobelli", format: "Paperback", price: 229000, color: "#dfe5d3", light: true, rating: 4.6, sold: 44, staff: "Hublife" },
-  { id: 4,  type: "Books", category: "Classics", title: "The Art of War", author: "Sun Tzu", format: "Paperback", price: 149000, color: "#6b2f2a", rating: 4.5, sold: 38 },
-  { id: 5,  type: "Books", category: "Self-Development", title: "When Things Don't Go Your Way", author: "Haemin Sunim", format: "Paperback", price: 259000, color: "#f0b84a", light: true, rating: 4.8, sold: 63, recent: 3, staff: "Berawa", pick: true },
-  { id: 6,  type: "Books", category: "Children", title: "Dog Man: A Tale of Two Kitties", author: "Dav Pilkey", format: "Hardcover", price: 189000, color: "#1e5fa8", rating: 4.9, sold: 72, recent: 5 },
-  { id: 7,  type: "Books", category: "Fiction", title: "The Stranger in the Lifeboat", author: "Mitch Albom", format: "Paperback", price: 219000, color: "#1b3a5c", rating: 4.5, sold: 29, staff: "TSM Bali" },
-  { id: 8,  type: "Books", category: "Fiction", title: "The Five People You Meet in Heaven", author: "Mitch Albom", format: "Paperback", price: 199000, color: "#e8dcc4", light: true, rating: 4.7, sold: 41, isNew: true },
-  { id: 9,  type: "Books", category: "Self-Development", title: "The Book You Wish Your Parents Had Read", author: "Philippa Perry", format: "Hardcover", price: 249000, color: "#e2521f", rating: 4.8, sold: 52, recent: 2, staff: "Pondok Indah Mall 5", pick: true },
-  { id: 10, type: "Books", category: "Children", title: "Dog Man and Cat Kid", author: "Dav Pilkey", format: "Hardcover", price: 189000, color: "#3f8a3a", rating: 4.9, sold: 58, recent: 6, isNew: true },
-  // Gifts & stationery (brands the store carries; prices are placeholders)
-  { id: 11, type: "Gifts", category: "Gifts", title: "The Really Tiny Book Light", author: "IF", price: 129000, color: "#e8432b", rating: 4.6, sold: 67, recent: 9, gift: true },
-  { id: 12, type: "Gifts", category: "Gifts", title: "Music Box — La Vie en Rose", author: "Kikkerland", price: 159000, color: "#f2c52c", light: true, rating: 4.7, sold: 23, staff: "Ashta District 8" },
-  { id: 13, type: "Gifts", category: "Gifts", title: "Mini Wooden Hammer Multi-Tool", author: "Kikkerland", price: 249000, color: "#3d3d3d", rating: 4.5, sold: 18 },
-  { id: 14, type: "Gifts", category: "Gifts", title: "Flip-On Bottle Buddy", author: "Kikkerland", price: 99000, color: "#5a7a4c", rating: 4.4, sold: 31, isNew: true },
-  { id: 15, type: "Stationery", category: "Stationery", title: "Fabulously Flat Paper Pens", author: "IF", price: 189000, color: "#f6f1e6", light: true, rating: 4.8, sold: 49, recent: 3, gift: true },
-  { id: 16, type: "Stationery", category: "Stationery", title: "Cable Ties, set of 6", author: "Kikkerland", price: 79000, color: "#c8396b", rating: 4.3, sold: 27, staff: "TSM Cibubur" },
-];
-
+const BRAND_OF = {
+  "Penguin Random House": ["PRH", "PRH UK", "PRH US", "Penguin", "Penguin UK", "Random House", "Avery", "Portfolio", "Vintage", "Crown", "Signet", "Hogarth", "Doubleday", "Viking", "Ace", "Ladybird"],
+  "HarperCollins": ["Harper", "Harper Collins", "HarperCollins", "HarperVoyager", "Harper Voyager", "Harper Perennial", "Harper Collins UK"],
+  "Hachette": ["Hachette", "Little Brown", "Hodder Education", "Hodder"],
+  "Simon & Schuster": ["Simon & Schuster"],
+  "Macmillan": ["Macmillan", "St. Martin's", "FSG", "Celadon", "Campbell"],
+  "Bloomsbury": ["Bloomsbury", "Bloomsbury UK"],
+  "Scholastic": ["Scholastic", "Scholastic MY"],
+  "Wordsworth Classics": ["Wordsworth"],
+  "Kikkerland": ["Kikkerland"], "IF": ["IF"]
+};
+function brandOf(pub) { for (const [b, list] of Object.entries(BRAND_OF)) if (list.includes(pub)) return b; return pub; }
+const PRODUCTS = (window.PRODUCT_DATA || []).map(p => Object.assign({}, p, { brand: brandOf(p.publisher) }));
 const TYPES = ["All", "Books", "Gifts", "Stationery"];
 const TOP_N = 5;
 const BEST_RANK = {};
-PRODUCTS.slice().sort((a, b) => b.sold - a.sold).slice(0, TOP_N).forEach((p, i) => { BEST_RANK[p.id] = i + 1; });
+PRODUCTS.filter(p => p.type === "Books").sort((a, b) => b.sold - a.sold).slice(0, TOP_N).forEach((p, i) => { BEST_RANK[p.id] = i + 1; });
+/* Store favourites: the top seller in each category last month */
+const CAT_LEADER = {};
+PRODUCTS.filter(p => p.type === "Books" && p.sold > 0).forEach(p => { if (!CAT_LEADER[p.category] || CAT_LEADER[p.category].sold < p.sold) CAT_LEADER[p.category] = p; });
+Object.values(CAT_LEADER).forEach(p => { p.pick = true; });
 
 /* ---------- Language ---------- */
 const LANG_KEY = "wonder-lang";
@@ -45,7 +41,12 @@ const UI = {
   "Checkout coming soon —": "Checkout segera hadir —", "Thanks — we'll be in touch.": "Terima kasih — kami akan menghubungi Anda.",
   "Sort: Featured": "Urutkan: Unggulan", "Best selling": "Terlaris", "Price: low to high": "Harga: rendah ke tinggi", "Price: high to low": "Harga: tinggi ke rendah", "Title A–Z": "Judul A–Z",
   "Trending in store": "Sedang ramai di toko", "Just bought": "Baru saja dibeli", "in": "di", "min ago": "menit lalu",
-  "Only a few left": "Stok tinggal sedikit", "In stock": "Stok tersedia"
+  "Only a few left": "Stok tinggal sedikit", "In stock": "Stok tersedia", "On request": "Bisa dipesan",
+  "Store favourites": "Favorit toko", "Store favourite": "Favorit toko", "sold last month": "terjual bulan lalu", "#1 in": "#1 di", "last month": "bulan lalu",
+  "Top sellers last month": "Terlaris bulan lalu", "Brands": "Brand", "All brands": "Semua brand", "Brand:": "Brand:",
+  "Romance": "Romance", "Sci-Fi & Fantasy": "Sci-Fi & Fantasi", "Mystery & Thriller": "Misteri & Thriller", "Young Adult": "Young Adult", "Psychology": "Psikologi",
+  "Philosophy": "Filsafat", "Memoir & Biography": "Memoar & Biografi", "Social Sciences": "Ilmu Sosial", "Comics & Manga": "Komik & Manga", "Education": "Edukasi", "Reference": "Referensi",
+  "ISBN": "ISBN", "Publisher": "Penerbit"
 };
 function t(s) { return LANG === "id" && UI[s] !== undefined ? UI[s] : s; }
 function catLabel(c) { return t(c); }
@@ -113,7 +114,7 @@ const Cart = {
       const p = PRODUCTS.find(x => x.id === i.id);
       return `
         <div class="cart-item">
-          <div class="mini" style="background:${p.color}"></div>
+          ${p.cover ? `<div class="mini has-img"><img src="${p.cover}" alt=""></div>` : `<div class="mini" style="background:${colorOf(p)}"></div>`}
           <div>
             <h4>${p.title}</h4>
             <div class="author">${p.author}</div>
@@ -147,28 +148,40 @@ const Cart = {
 
 /* ---------- Cards ---------- */
 function rankPill(p) { return BEST_RANK[p.id] ? `<span class="rank">${t("BEST SELLER #")}${BEST_RANK[p.id]}</span>` : ""; }
+const PALETTE = ["#1f3b73", "#3e7a5a", "#b07a12", "#2e5f8a", "#9c4f7a", "#6b4fa0", "#c2402f", "#2a1640", "#5b2a86", "#b0476a"];
+function colorOf(p) { return p.color || PALETTE[p.id % PALETTE.length]; }
 function coverBadge(p) {
-  if (p.pick) return `<span class="badge">${t("Staff pick")}</span>`;
-  if (p.gift) return `<span class="badge">${t("Gift idea")}</span>`;
-  if (p.isNew) return `<span class="badge">${t("New")}</span>`;
+  if (p.pick) return `<span class="badge">${t("Store favourite")}</span>`;
+  if (p.type !== "Books") return `<span class="badge">${t("Gift idea")}</span>`;
   return "";
 }
 function proof(p) {
   const rows = [];
-  if (p.recent) rows.push(`<span class="proof hot"><i></i>${p.recent} ${t("bought in the last 24 hours")}</span>`);
-  if (p.staff) rows.push(`<span class="proof"><i></i>${t("Recommended by the")} ${p.staff}${LANG === "id" ? "" : " team"}</span>`);
+  if (p.sold > 0) rows.push(`<span class="proof hot"><i></i>${p.sold} ${t("sold last month")}</span>`);
+  if (p.pick) rows.push(`<span class="proof"><i></i>${t("#1 in")} ${t(p.category)} ${t("last month")}</span>`);
   return rows.length ? `<div class="proof-row">${rows.join("")}</div>` : "";
 }
+function stockLabel(p) { return `<span class="format ${p.inStock ? "in" : "req"}">${t(p.inStock ? "In stock" : "On request")}</span>`; }
 function coverBlock(p, cls = "") {
   const isBook = p.type === "Books";
+  if (p.cover) return `
+    <div class="cover has-img ${cls}">
+      <img src="${p.cover}" alt="${p.title}" loading="lazy">
+      ${coverBadge(p)}
+      <div class="quick-add"><button class="btn btn-sm" data-add="${p.id}">${t("Quick add ↗")}</button></div>
+    </div>`;
   return `
-    <div class="cover ${p.light ? "light" : ""} ${cls}" style="background:${p.color}">
+    <div class="cover ${p.light ? "light" : ""} ${cls}" style="background:${colorOf(p)}">
       ${!isBook ? `<span class="brand-tag">${p.author}</span>` : ""}
       ${coverBadge(p)}
       <div class="cover-title">${p.title}</div>
       ${isBook ? `<div class="cover-author">${p.author}</div>` : ""}
       <div class="quick-add"><button class="btn btn-sm" data-add="${p.id}">${t("Quick add ↗")}</button></div>
     </div>`;
+}
+function thumbBlock(p) {
+  if (p.cover) return `<div class="thumb has-img"><img src="${p.cover}" alt="" loading="lazy"></div>`;
+  return `<div class="thumb ${p.light ? "light" : ""}" style="background:${colorOf(p)}"><span>${p.title}</span></div>`;
 }
 function productCard(p) {
   return `
@@ -178,7 +191,7 @@ function productCard(p) {
         <div class="cat-row"><span class="cat">${catLabel(p.category)}</span>${rankPill(p)}</div>
         <h3>${p.title}</h3>
         <span class="author">${p.author}</span>
-        <div class="meta-row"><span class="stars">${stars(p.rating)}</span>${p.format ? `<span class="format">${t(p.format)}</span>` : ""}</div>
+        <div class="meta-row"><span class="pub">${p.publisher}</span>${stockLabel(p)}</div>
         ${proof(p)}
         <div class="book-foot">
           <span class="price">${money(p.price)}</span>
@@ -190,11 +203,11 @@ function productCard(p) {
 function productRow(p) {
   return `
     <article class="book-row">
-      <div class="thumb ${p.light ? "light" : ""}" style="background:${p.color}"><span>${p.title}</span></div>
+      ${thumbBlock(p)}
       <div class="row-main">
         <div class="row-title"><h3>${p.title}</h3>${rankPill(p)}${coverBadge(p)}</div>
-        <div class="row-sub">${p.author} · ${catLabel(p.category)}${p.format ? " · " + t(p.format) : ""}</div>
-        <div class="meta-row"><span class="stars">${stars(p.rating)}</span></div>
+        <div class="row-sub">${p.author} · ${p.publisher} · ${catLabel(p.category)}</div>
+        <div class="meta-row">${p.isbn ? `<span class="pub">ISBN ${p.isbn}</span>` : "<span></span>"}${stockLabel(p)}</div>
         ${proof(p)}
       </div>
       <div class="row-side">
@@ -211,35 +224,28 @@ function productTile(p) {
     </article>`;
 }
 function trendingCard(p) {
-  const n = Math.max(2, Math.round(p.sold / 4));
   return `
     <div class="trend">
-      <div class="thumb ${p.light ? "light" : ""}" style="background:${p.color}"><span>${p.title}</span></div>
+      ${thumbBlock(p)}
       <div class="trend-body">
         <div class="trend-title">${p.title}</div>
-        <div class="trend-proof">${LANG === "id" ? "Dibeli " + n + " kali minggu ini" : "Bought " + n + " times this week"}</div>
+        <div class="trend-proof">${p.sold} ${t("sold last month")}</div>
         <div class="trend-price">${money(p.price)}</div>
       </div>
       <button class="trend-add" data-add="${p.id}" aria-label="Add">+</button>
     </div>`;
 }
-const STORES_SHORT = ["Ashta District 8", "Hublife", "Berawa", "Pondok Indah Mall 5", "TSM Cibubur", "TSM Bali"];
 function renderTrending() {
   document.querySelectorAll("[data-trending]").forEach(box => {
-    const top = PRODUCTS.slice().sort((a, b) => b.sold - a.sold).slice(0, 8);
-    const recent = top.slice(0, 3).map((p, i) => {
-      const mins = i * 7 + 3;
-      return LANG === "id"
-        ? `<span>Seseorang di ${STORES_SHORT[i]} membeli ${p.title} <em>· ${mins} menit lalu</em></span>`
-        : `<span>Someone at ${STORES_SHORT[i]} bought ${p.title} <em>· ${mins} min ago</em></span>`;
-    }).join("");
+    const top = PRODUCTS.filter(p => p.type === "Books").sort((a, b) => b.sold - a.sold).slice(0, 10);
+    const recent = top.slice(0, 4).map(p => `<span>${p.title} <em>· ${p.sold}</em></span>`).join("");
     box.innerHTML = `
-      <div class="trend-head"><h3><span class="tr-ic">↗</span> ${t("Trending in store")}</h3><span class="muted">${LANG === "id" ? "Paling banyak dibeli minggu ini di enam toko" : "Most bought this week across six stores"}</span></div>
+      <div class="trend-head"><h3><span class="tr-ic">↗</span> ${t("Trending in store")}</h3><span class="muted">${LANG === "id" ? "Paling banyak terjual bulan lalu" : "Most sold last month"}</span></div>
       <div class="rail-wrap" data-rail-wrap>
         <div class="rail trend-rail">${top.map(trendingCard).join("")}</div>
         <div class="progress"><span></span></div>
       </div>
-      <div class="just-bought"><strong><i></i>${t("Just bought")}</strong>${recent}</div>`;
+      <div class="just-bought"><strong><i></i>${t("Top sellers last month")}</strong>${recent}</div>`;
   });
   initRails();
 }
@@ -274,7 +280,9 @@ function initShop() {
   try { view = localStorage.getItem("wonder-view") || "grid"; } catch {}
   if (params.get("q")) search.value = params.get("q");
 
-  const COLLECTIONS = [["all", "All titles"], ["best", "Bestsellers"], ["picks", "Staff picks"], ["new", "New arrivals"]];
+  const COLLECTIONS = [["all", "All titles"], ["best", "Bestsellers"], ["picks", "Store favourites"], ["stock", "In stock"]];
+  const brandSel = document.querySelector("[data-brand]");
+  let brand = params.get("brand") || "All";
   const VIEWS = [["grid", "Grid", "▦"], ["list", "List", "☰"], ["compact", "Compact", "▪"]];
   function categoriesFor(tp) {
     const list = PRODUCTS.filter(p => tp === "All" || p.type === tp).map(p => p.category);
@@ -288,18 +296,25 @@ function initShop() {
     if (colTabs) colTabs.innerHTML = COLLECTIONS.map(([k, l]) => `<button class="seg ${k === collection ? "active" : ""}" data-col="${k}">${t(l)}</button>`).join("");
     if (views) views.innerHTML = VIEWS.map(([k, l, ic]) => `<button class="view-btn ${k === view ? "active" : ""}" data-view="${k}" title="${t(l)}" aria-label="${t(l)}">${ic}</button>`).join("");
     [...sort.options].forEach(o => { if (!o.dataset.en) o.dataset.en = o.textContent; o.textContent = t(o.dataset.en); });
+    if (brandSel) {
+      const counts = {};
+      PRODUCTS.forEach(p => { counts[p.brand] = (counts[p.brand] || 0) + 1; });
+      const brands = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+      brandSel.innerHTML = `<option value="All">${t("Brand:")} ${t("All brands")}</option>` + brands.map(b => `<option value="${b}" ${b === brand ? "selected" : ""}>${b} (${counts[b]})</option>`).join("");
+    }
   }
   function render() {
     const q = (search.value || "").toLowerCase().trim();
     let list = PRODUCTS.filter(p => (type === "All" || p.type === type) && (category === "All" || p.category === category) &&
-      (collection === "all" || (collection === "best" && BEST_RANK[p.id]) || (collection === "picks" && (p.pick || p.staff)) || (collection === "new" && p.isNew)) &&
-      (!q || p.title.toLowerCase().includes(q) || p.author.toLowerCase().includes(q)));
+      (collection === "all" || (collection === "best" && BEST_RANK[p.id]) || (collection === "picks" && p.pick) || (collection === "stock" && p.inStock)) &&
+      (brand === "All" || p.brand === brand) &&
+      (!q || p.title.toLowerCase().includes(q) || p.author.toLowerCase().includes(q) || p.publisher.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q) || (p.isbn || "").includes(q)));
     switch (sort.value) {
       case "best": list.sort((a, b) => b.sold - a.sold); break;
       case "price-asc": list.sort((a, b) => a.price - b.price); break;
       case "price-desc": list.sort((a, b) => b.price - a.price); break;
       case "title": list.sort((a, b) => a.title.localeCompare(b.title)); break;
-      default: list.sort((a, b) => (BEST_RANK[a.id] || 99) - (BEST_RANK[b.id] || 99));
+      default: list.sort((a, b) => (BEST_RANK[a.id] || 99) - (BEST_RANK[b.id] || 99) || (b.pick ? 1 : 0) - (a.pick ? 1 : 0) || b.sold - a.sold);
     }
     count.textContent = `${list.length} ${t(list.length === 1 ? "item" : "items")}` + (type !== "All" ? ` · ${t(type)}` : "") + (category !== "All" ? ` · ${t(category)}` : "");
     grid.className = view === "list" ? "book-list" : view === "compact" ? "book-compact" : "book-grid";
@@ -311,6 +326,7 @@ function initShop() {
     type === "All" ? url.searchParams.delete("type") : url.searchParams.set("type", type);
     category === "All" ? url.searchParams.delete("cat") : url.searchParams.set("cat", category);
     collection === "all" ? url.searchParams.delete("col") : url.searchParams.set("col", collection);
+    brand === "All" ? url.searchParams.delete("brand") : url.searchParams.set("brand", brand);
     history.replaceState(null, "", url);
   }
   tabs.addEventListener("click", e => { const b = e.target.closest("[data-type]"); if (!b) return; type = b.dataset.type; category = "All"; renderControls(); syncUrl(); render(); });
@@ -319,6 +335,7 @@ function initShop() {
   if (views) views.addEventListener("click", e => { const b = e.target.closest("[data-view]"); if (!b) return; view = b.dataset.view; try { localStorage.setItem("wonder-view", view); } catch {} renderControls(); render(); });
   search.addEventListener("input", render);
   sort.addEventListener("change", render);
+  if (brandSel) brandSel.addEventListener("change", () => { brand = brandSel.value; syncUrl(); render(); });
   renderControls(); render();
   RERENDER.push(() => { renderControls(); render(); });
 }
@@ -328,13 +345,13 @@ function initHome() {
   const featured = document.querySelector("[data-featured]");
   if (!featured) return;
   const tabsEl = document.querySelector("[data-home-tabs]");
-  const TABS = [["best", "Bestsellers"], ["picks", "Staff picks"], ["new", "New arrivals"]];
+  const TABS = [["best", "Bestsellers"], ["picks", "Store favourites"], ["kids", "Children"]];
   let tab = "best";
   function render() {
     if (tabsEl) tabsEl.innerHTML = TABS.map(([k, l]) => `<button class="seg ${k === tab ? "active" : ""}" data-home-tab="${k}">${t(l)}</button>`).join("");
-    let list = tab === "best" ? PRODUCTS.filter(p => p.type === "Books").sort((a, b) => b.sold - a.sold)
-      : tab === "picks" ? PRODUCTS.filter(p => p.pick || p.staff)
-      : PRODUCTS.filter(p => p.isNew);
+    let list = tab === "best" ? PRODUCTS.filter(p => p.type === "Books").sort((a, b) => b.sold - a.sold).slice(0, 12)
+      : tab === "picks" ? PRODUCTS.filter(p => p.pick).sort((a, b) => b.sold - a.sold)
+      : PRODUCTS.filter(p => p.category === "Children").sort((a, b) => b.sold - a.sold).slice(0, 12);
     featured.innerHTML = list.map(productCard).join("");
     const gifts = document.querySelector("[data-gifts]");
     if (gifts) gifts.innerHTML = PRODUCTS.filter(p => p.type !== "Books").sort((a, b) => b.sold - a.sold).map(productCard).join("");
@@ -342,6 +359,39 @@ function initHome() {
     window.dispatchEvent(new Event("resize"));
   }
   if (tabsEl) tabsEl.addEventListener("click", e => { const b = e.target.closest("[data-home-tab]"); if (!b) return; tab = b.dataset.homeTab; render(); });
+  render();
+  RERENDER.push(render);
+}
+
+/* ---------- Brands page ---------- */
+const BRAND_INFO = [
+  ["Penguin Random House", "assets/logos/penguin-random-house.svg", "Penguin, Avery, Portfolio, Vintage, Crown, Viking, Ladybird and more.", "Penguin, Avery, Portfolio, Vintage, Crown, Viking, Ladybird, dan lainnya."],
+  ["HarperCollins", "assets/logos/harpercollins.png", "Harper, Harper Voyager, Harper Perennial and HarperCollins UK.", "Harper, Harper Voyager, Harper Perennial, dan HarperCollins UK."],
+  ["Hachette", "assets/logos/hachette.svg", "Hachette, Little, Brown and Hodder Education.", "Hachette, Little, Brown, dan Hodder Education."],
+  ["Simon & Schuster", "assets/logos/simon-schuster.svg", "Fiction and non-fiction from Simon & Schuster.", "Fiksi dan non-fiksi dari Simon & Schuster."],
+  ["Macmillan", "assets/logos/macmillan.jpg", "Macmillan, St. Martin's, FSG, Celadon and Campbell Books.", "Macmillan, St. Martin's, FSG, Celadon, dan Campbell Books."],
+  ["Bloomsbury", "assets/logos/bloomsbury.svg", "Bloomsbury UK and US.", "Bloomsbury Inggris dan AS."],
+  ["Scholastic", "assets/logos/scholastic.svg", "Dog Man, Cat Kid Comic Club and children's favourites.", "Dog Man, Cat Kid Comic Club, dan favorit anak-anak."],
+  ["Wordsworth Classics", "", "Affordable editions of the classics.", "Edisi terjangkau buku-buku klasik."],
+  ["Kikkerland", "assets/logos/kikkerland.png", "Design gifts and clever everyday objects.", "Hadiah desain dan benda sehari-hari yang cerdik."],
+  ["Fred & Friends", "assets/logos/fred.png", "Playful kitchen and desk gifts.", "Hadiah dapur dan meja yang menyenangkan."],
+  ["IF", "", "Book lights, paper pens and reading accessories.", "Lampu baca, pena kertas, dan aksesori membaca."]
+];
+function initBrands() {
+  const grid = document.querySelector("[data-brands]");
+  if (!grid) return;
+  function render() {
+    grid.innerHTML = BRAND_INFO.map(([name, logo, en, id]) => {
+      const n = PRODUCTS.filter(p => p.brand === name).length;
+      return `
+        <a class="brand-card" href="shop.html?brand=${encodeURIComponent(name)}">
+          <div class="brand-logo">${logo ? `<img src="${logo}" alt="${name}">` : `<span>${name}</span>`}</div>
+          <h3>${name}</h3>
+          <p>${LANG === "id" ? id : en}</p>
+          <span class="brand-count">${n ? n + " " + t(n === 1 ? "item" : "items") + " ↗" : (LANG === "id" ? "Lihat di toko ↗" : "See in store ↗")}</span>
+        </a>`;
+    }).join("");
+  }
   render();
   RERENDER.push(render);
 }
@@ -417,7 +467,7 @@ function initForms() {
 /* ---------- Wiring ---------- */
 document.addEventListener("DOMContentLoaded", () => {
   applyI18n();
-  Cart.load(); Cart.render(); initHome(); initShop(); initForms(); renderTrending(); initRails(); initSlideshow(); initHeader();
+  Cart.load(); Cart.render(); initHome(); initShop(); initBrands(); initForms(); renderTrending(); initRails(); initSlideshow(); initHeader();
   RERENDER.push(() => Cart.render()); RERENDER.push(renderTrending);
 
   const path = location.pathname.split("/").pop() || "index.html";
