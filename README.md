@@ -4,6 +4,10 @@ Static website for Wonder Bookstore, the lifestyle bookstore of the Sinar Starbo
 
 The look follows the "Wonder Bookstore Airport Proposal" deck: signature forest green, white uppercase Helvetica-style headlines (Archivo), the ↗ arrow motif, pill-shaped outlined buttons and real store photography.
 
+## Live site
+
+https://stevetsurface.github.io/wonder-bookstore/ (GitHub Pages, built from the `main` branch)
+
 ## Pages
 
 - `index.html` — home: hero, shop-by-world tiles, bestsellers, concept, coffee shop, gifts, store grid, community, newsletter
