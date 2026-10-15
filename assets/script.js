@@ -492,3 +492,460 @@ document.addEventListener("DOMContentLoaded", () => {
   const year = document.querySelector("[data-year]");
   if (year) year.textContent = new Date().getFullYear();
 });
+
+/* =====================================================================
+   Stores, shipping, payment, orders and Wonder Club (front-end flows)
+   ===================================================================== */
+const STORES = [
+  { id: "hublife", name: "Hublife", area: "Tanjung Duren, West Jakarta", areaId: "Tanjung Duren, Jakarta Barat", city: "Jakarta", coffee: false },
+  { id: "ashta", name: "Ashta District 8", area: "SCBD, South Jakarta", areaId: "SCBD, Jakarta Selatan", city: "Jakarta", coffee: true },
+  { id: "pim5", name: "Pondok Indah Mall 5", area: "Pondok Indah, South Jakarta", areaId: "Pondok Indah, Jakarta Selatan", city: "Jakarta", coffee: false },
+  { id: "cibubur", name: "TSM Cibubur", area: "Cibubur, Depok", areaId: "Cibubur, Depok", city: "Depok", coffee: false },
+  { id: "berawa", name: "Berawa", area: "Canggu, Bali", areaId: "Canggu, Bali", city: "Bali", coffee: true },
+  { id: "tsmbali", name: "TSM Bali", area: "Denpasar, Bali", areaId: "Denpasar, Bali", city: "Bali", coffee: false },
+];
+/* Shipping rates are estimates per zone until a rate API (RajaOngkir / Biteship) is connected. Prices per order. */
+const ZONES = [
+  ["jabodetabek", "Jabodetabek", "Jabodetabek"], ["jawa", "Java (outside Jabodetabek)", "Jawa (luar Jabodetabek)"], ["bali", "Bali", "Bali"], ["sumatra", "Sumatra", "Sumatra"], ["other", "Other islands", "Pulau lainnya"]
+];
+const COURIERS = [
+  { id: "jne", name: "JNE Regular", eta: { jabodetabek: "1–2", jawa: "2–3", bali: "2–4", sumatra: "3–5", other: "4–7" }, rate: { jabodetabek: 12000, jawa: 18000, bali: 22000, sumatra: 28000, other: 38000 } },
+  { id: "jnt", name: "J&T Express", eta: { jabodetabek: "1–2", jawa: "2–3", bali: "2–4", sumatra: "3–5", other: "4–7" }, rate: { jabodetabek: 11000, jawa: 17000, bali: 21000, sumatra: 27000, other: 36000 } },
+  { id: "sicepat", name: "SiCepat REG", eta: { jabodetabek: "1–2", jawa: "2–3", bali: "2–4", sumatra: "3–5", other: "4–7" }, rate: { jabodetabek: 10000, jawa: 16000, bali: 20000, sumatra: 26000, other: 35000 } },
+  { id: "instant", name: "Gojek Instant (same city)", eta: { jabodetabek: "0 (today)", bali: "0 (today)" }, rate: { jabodetabek: 25000, bali: 25000 } },
+];
+const FREE_SHIPPING_FROM = 350000;
+const PAYMENTS = [
+  ["qris", "QRIS", "Scan with any bank or e-wallet app", "Scan dengan aplikasi bank atau e-wallet mana pun"],
+  ["gopay", "GoPay", "Pay in the Gojek app", "Bayar lewat aplikasi Gojek"],
+  ["shopeepay", "ShopeePay", "Pay in the Shopee app", "Bayar lewat aplikasi Shopee"],
+  ["va_bca", "BCA Virtual Account", "Transfer from m-BCA or any ATM", "Transfer dari m-BCA atau ATM mana pun"],
+  ["va_mandiri", "Mandiri Virtual Account", "Transfer from Livin' or any ATM", "Transfer dari Livin' atau ATM mana pun"],
+  ["va_bni", "BNI Virtual Account", "Transfer from BNI Mobile or any ATM", "Transfer dari BNI Mobile atau ATM mana pun"],
+  ["va_bri", "BRI Virtual Account", "Transfer from BRImo or any ATM", "Transfer dari BRImo atau ATM mana pun"],
+  ["card", "Credit / debit card", "Visa, Mastercard, JCB", "Visa, Mastercard, JCB"],
+  ["cstore", "Indomaret / Alfamart", "Pay cash at the counter", "Bayar tunai di kasir"],
+  ["instore", "Pay in store on pickup", "Only with store pickup", "Hanya untuk ambil di toko"],
+];
+const CLUB = { earnPer: 1000, redeemPoints: 100, redeemValue: 10000, birthdayPct: 30,
+  tiers: [["Reader", 0], ["Bookworm", 2500000], ["Wonderer", 7500000]] };
+
+const Orders = {
+  key: "wonder-orders",
+  all() { try { return JSON.parse(localStorage.getItem(this.key)) || []; } catch { return []; } },
+  save(list) { try { localStorage.setItem(this.key, JSON.stringify(list)); } catch {} },
+  add(o) { const list = this.all(); list.unshift(o); this.save(list); return o; },
+  get(id) { return this.all().find(o => o.id === id); }
+};
+const Member = {
+  key: "wonder-member",
+  get() { try { return JSON.parse(localStorage.getItem(this.key)); } catch { return null; } },
+  set(m) { try { localStorage.setItem(this.key, JSON.stringify(m)); } catch {} },
+  clear() { try { localStorage.removeItem(this.key); } catch {} },
+  spend(m) { return Orders.all().filter(o => o.memberEmail === m.email).reduce((s, o) => s + o.subtotal, 0); },
+  points(m) { const earned = Orders.all().filter(o => o.memberEmail === m.email).reduce((s, o) => s + o.pointsEarned, 0); return earned - (m.redeemed || 0); },
+  tier(m) { const spend = this.spend(m); let tier = CLUB.tiers[0]; CLUB.tiers.forEach(tr => { if (spend >= tr[1]) tier = tr; }); return tier; },
+  nextTier(m) { const spend = this.spend(m); return CLUB.tiers.find(tr => tr[1] > spend) || null; }
+};
+function isBirthdayMonth(m) { if (!m || !m.birthday) return false; return new Date(m.birthday).getMonth() === new Date().getMonth(); }
+function fmtDate(iso) { return new Date(iso).toLocaleDateString(LANG === "id" ? "id-ID" : "en-GB", { day: "numeric", month: "short", year: "numeric" }); }
+
+/* ---------- Checkout ---------- */
+function initCheckout() {
+  const root = document.querySelector("[data-checkout-page]");
+  if (!root) return;
+  const member = Member.get();
+  const st = { method: "pickup", store: "ashta", zone: "jabodetabek", courier: "jne", pay: "qris", usePoints: false, placed: null };
+  if (member) { st.name = member.name; st.email = member.email; st.phone = member.phone; }
+
+  function items() { return Cart.items.map(i => ({ p: PRODUCTS.find(x => x.id === i.id), qty: i.qty })); }
+  function subtotal() { return Cart.total(); }
+  function shipping() {
+    if (st.method === "pickup") return 0;
+    const c = COURIERS.find(x => x.id === st.courier);
+    if (!c || c.rate[st.zone] === undefined) return null;
+    return subtotal() >= FREE_SHIPPING_FROM && c.id !== "instant" ? 0 : c.rate[st.zone];
+  }
+  function birthdayDiscount() { return member && isBirthdayMonth(member) && !member.birthdayUsedYear ? Math.round(subtotal() * CLUB.birthdayPct / 100) : 0; }
+  function pointsDiscount() { if (!member || !st.usePoints) return 0; const pts = Member.points(member); const blocks = Math.floor(pts / CLUB.redeemPoints); return Math.min(blocks * CLUB.redeemValue, subtotal() - birthdayDiscount()); }
+  function total() { return Math.max(0, subtotal() - birthdayDiscount() - pointsDiscount() + (shipping() || 0)); }
+
+  function render() {
+    if (st.placed) { location.href = "order.html?id=" + st.placed; return; }
+    const L = (en, id) => (LANG === "id" ? id : en);
+    if (!Cart.items.length) { root.innerHTML = `<div class="empty"><p>${t("Your bag is empty.")}</p><a class="btn btn-dark btn-sm" href="shop.html">${t("Browse the shop ↗")}</a></div>`; return; }
+    const ship = shipping();
+    root.innerHTML = `
+      <div class="co-grid">
+        <div class="co-main">
+          <section class="co-block">
+            <h3><span class="n">1</span>${L("Contact", "Kontak")}</h3>
+            ${member ? `<p class="muted" style="font-size:.9rem">${L("Signed in as", "Masuk sebagai")} <strong>${member.name}</strong> · ${Member.tier(member)[0]} · ${Member.points(member)} ${L("points", "poin")}</p>` : `<p class="muted" style="font-size:.9rem">${L("Wonder Club member?", "Anggota Wonder Club?")} <a href="account.html" style="text-decoration:underline">${L("Sign in to earn points", "Masuk untuk dapat poin")}</a></p>`}
+            <div class="field-row">
+              <div class="field"><label>${t("Name")}</label><input data-f="name" value="${st.name || ""}" required></div>
+              <div class="field"><label>${L("WhatsApp number", "Nomor WhatsApp")}</label><input data-f="phone" value="${st.phone || ""}" placeholder="08…" required></div>
+            </div>
+            <div class="field"><label>${t("Email")}</label><input data-f="email" type="email" value="${st.email || ""}" required></div>
+          </section>
+
+          <section class="co-block">
+            <h3><span class="n">2</span>${L("Delivery", "Pengiriman")}</h3>
+            <div class="choice-row">
+              <label class="choice ${st.method === "pickup" ? "on" : ""}"><input type="radio" name="method" value="pickup" ${st.method === "pickup" ? "checked" : ""}><div><strong>${L("Pick up in store", "Ambil di toko")}</strong><span>${L("Free · ready in 2 hours during store hours", "Gratis · siap dalam 2 jam pada jam buka")}</span></div></label>
+              <label class="choice ${st.method === "ship" ? "on" : ""}"><input type="radio" name="method" value="ship" ${st.method === "ship" ? "checked" : ""}><div><strong>${L("Ship to me", "Kirim ke alamat")}</strong><span>${L("Free shipping from", "Gratis ongkir mulai")} ${money(FREE_SHIPPING_FROM)}</span></div></label>
+            </div>
+            ${st.method === "pickup" ? `
+              <div class="store-pick">${STORES.map(s => `
+                <label class="choice store-choice ${st.store === s.id ? "on" : ""}"><input type="radio" name="store" value="${s.id}" ${st.store === s.id ? "checked" : ""}><div><strong>${s.name}</strong><span>${LANG === "id" ? s.areaId : s.area}${s.coffee ? " · Wonder Coffee" : ""}</span></div></label>`).join("")}
+              </div>` : `
+              <div class="field"><label>${L("Address", "Alamat")}</label><textarea data-f="address" rows="2" required>${st.address || ""}</textarea></div>
+              <div class="field-row">
+                <div class="field"><label>${L("City / district", "Kota / kecamatan")}</label><input data-f="city" value="${st.city || ""}" required></div>
+                <div class="field"><label>${L("Shipping zone", "Zona pengiriman")}</label><select data-f="zone">${ZONES.map(z => `<option value="${z[0]}" ${st.zone === z[0] ? "selected" : ""}>${LANG === "id" ? z[2] : z[1]}</option>`).join("")}</select></div>
+              </div>
+              <div class="choice-row cols">${COURIERS.filter(c => c.rate[st.zone] !== undefined).map(c => {
+                const free = subtotal() >= FREE_SHIPPING_FROM && c.id !== "instant";
+                return `<label class="choice ${st.courier === c.id ? "on" : ""}"><input type="radio" name="courier" value="${c.id}" ${st.courier === c.id ? "checked" : ""}><div><strong>${c.name}</strong><span>${c.eta[st.zone]} ${L("days", "hari")} · ${free ? L("Free", "Gratis") : money(c.rate[st.zone])}</span></div></label>`; }).join("")}
+              </div>
+              <p class="form-note">${L("Rates are estimates until the courier rate service is connected.", "Tarif masih perkiraan sampai layanan tarif kurir terhubung.")}</p>`}
+          </section>
+
+          <section class="co-block">
+            <h3><span class="n">3</span>${L("Payment", "Pembayaran")}</h3>
+            <div class="choice-row cols">${PAYMENTS.filter(([id]) => id !== "instore" || st.method === "pickup").map(([id, name, en, idn]) => `
+              <label class="choice ${st.pay === id ? "on" : ""}"><input type="radio" name="pay" value="${id}" ${st.pay === id ? "checked" : ""}><div><strong>${name}</strong><span>${LANG === "id" ? idn : en}</span></div></label>`).join("")}
+            </div>
+            <p class="form-note">${L("Processed by Midtrans. You will be redirected to complete payment.", "Diproses oleh Midtrans. Anda akan diarahkan untuk menyelesaikan pembayaran.")}</p>
+          </section>
+        </div>
+
+        <aside class="co-side">
+          <div class="co-summary">
+            <h3>${L("Your order", "Pesanan Anda")}</h3>
+            ${items().map(({ p, qty }) => `<div class="co-line">${p.cover ? `<img src="${p.cover}" alt="">` : `<span class="mini" style="background:${colorOf(p)}"></span>`}<div><strong>${p.title}</strong><span>${qty} × ${money(p.price)}</span></div><span>${money(p.price * qty)}</span></div>`).join("")}
+            <div class="co-totals">
+              <div><span>${t("Subtotal")}</span><span>${money(subtotal())}</span></div>
+              ${birthdayDiscount() ? `<div class="good"><span>${L("Birthday month", "Bulan ulang tahun")} −${CLUB.birthdayPct}%</span><span>−${money(birthdayDiscount())}</span></div>` : ""}
+              ${member && Member.points(member) >= CLUB.redeemPoints ? `<div><label class="pts"><input type="checkbox" data-f="usePoints" ${st.usePoints ? "checked" : ""}> ${L("Use", "Pakai")} ${Math.floor(Member.points(member) / CLUB.redeemPoints) * CLUB.redeemPoints} ${L("points", "poin")}</label><span>${st.usePoints ? "−" + money(pointsDiscount()) : money(Math.floor(Member.points(member) / CLUB.redeemPoints) * CLUB.redeemValue)}</span></div>` : ""}
+              <div><span>${st.method === "pickup" ? L("Pickup", "Ambil di toko") : L("Shipping", "Ongkir")}</span><span>${ship === null ? "—" : ship === 0 ? L("Free", "Gratis") : money(ship)}</span></div>
+              <div class="grand"><span>${L("Total", "Total")}</span><span>${money(total())}</span></div>
+            </div>
+            ${member ? `<p class="form-note">${L("You will earn", "Anda akan mendapat")} <strong>${Math.floor(total() / CLUB.earnPer)}</strong> ${L("Wonder Club points", "poin Wonder Club")}.</p>` : `<p class="form-note">${L("Join Wonder Club to earn", "Gabung Wonder Club untuk dapat")} ${Math.floor(total() / CLUB.earnPer)} ${L("points on this order.", "poin dari pesanan ini.")}</p>`}
+            <button class="btn btn-dark" data-place style="width:100%;justify-content:center">${L("Place order ↗", "Buat pesanan ↗")}</button>
+            <p class="form-note" style="text-align:center">${L("Demo: no payment is taken yet.", "Demo: belum ada pembayaran yang diproses.")}</p>
+          </div>
+        </aside>
+      </div>`;
+  }
+  root.addEventListener("change", e => {
+    const el = e.target;
+    if (el.name === "method") st.method = el.value;
+    else if (el.name === "store") st.store = el.value;
+    else if (el.name === "courier") st.courier = el.value;
+    else if (el.name === "pay") st.pay = el.value;
+    else if (el.dataset.f === "usePoints") st.usePoints = el.checked;
+    else if (el.dataset.f) { st[el.dataset.f] = el.value; if (el.dataset.f !== "zone") return; }
+    else return;
+    if (st.method === "pickup" && st.pay !== "instore" && !PAYMENTS.find(p => p[0] === st.pay)) st.pay = "qris";
+    if (st.method === "ship" && st.pay === "instore") st.pay = "qris";
+    if (!COURIERS.find(c => c.id === st.courier && c.rate[st.zone] !== undefined)) st.courier = "jne";
+    render();
+  });
+  root.addEventListener("input", e => { if (e.target.dataset.f && e.target.dataset.f !== "zone") st[e.target.dataset.f] = e.target.value; });
+  root.addEventListener("click", e => {
+    if (!e.target.closest("[data-place]")) return;
+    const req = ["name", "phone", "email"].concat(st.method === "ship" ? ["address", "city"] : []);
+    const missing = req.filter(k => !(st[k] || "").trim());
+    if (missing.length) { showToast(LANG === "id" ? "Lengkapi kontak dan alamat dulu." : "Please complete contact and address first."); root.querySelector(`[data-f="${missing[0]}"]`).focus(); return; }
+    const id = "WB" + Date.now().toString().slice(-8);
+    const order = {
+      id, date: new Date().toISOString(), items: items().map(({ p, qty }) => ({ id: p.id, title: p.title, price: p.price, qty, cover: p.cover || "" })),
+      subtotal: subtotal(), shipping: shipping() || 0, discount: birthdayDiscount() + pointsDiscount(), total: total(),
+      method: st.method, store: st.method === "pickup" ? STORES.find(s => s.id === st.store).name : null, courier: st.method === "ship" ? COURIERS.find(c => c.id === st.courier).name : null,
+      zone: st.zone, address: st.method === "ship" ? `${st.address}, ${st.city}` : null,
+      payment: PAYMENTS.find(p => p[0] === st.pay)[1], status: "awaiting_payment",
+      name: st.name, phone: st.phone, email: st.email, memberEmail: member ? member.email : null,
+      pointsEarned: member ? Math.floor(total() / CLUB.earnPer) : 0, pointsUsed: member && st.usePoints ? Math.floor(Member.points(member) / CLUB.redeemPoints) * CLUB.redeemPoints : 0
+    };
+    if (member) {
+      if (order.pointsUsed) { member.redeemed = (member.redeemed || 0) + order.pointsUsed; }
+      if (birthdayDiscount()) member.birthdayUsedYear = new Date().getFullYear();
+      Member.set(member);
+    }
+    Orders.add(order);
+    Cart.items = []; Cart.save();
+    st.placed = id; render();
+  });
+  render();
+  RERENDER.push(render);
+}
+
+/* ---------- Order confirmation ---------- */
+function initOrderPage() {
+  const root = document.querySelector("[data-order-page]");
+  if (!root) return;
+  const id = new URLSearchParams(location.search).get("id");
+  const o = Orders.get(id);
+  const L = (en, idn) => (LANG === "id" ? idn : en);
+  function render() {
+    if (!o) { root.innerHTML = `<div class="empty"><p>${L("Order not found.", "Pesanan tidak ditemukan.")}</p></div>`; return; }
+    const payNote = o.payment.includes("Virtual") ? L("Transfer the total to the virtual account number sent to your WhatsApp and email.", "Transfer total ke nomor virtual account yang dikirim ke WhatsApp dan email Anda.")
+      : o.payment === "QRIS" ? L("Scan the QR code sent to your WhatsApp and email.", "Scan kode QR yang dikirim ke WhatsApp dan email Anda.")
+      : o.payment === "Pay in store on pickup" ? L("Pay at the cashier when you collect.", "Bayar di kasir saat mengambil pesanan.")
+      : L("Follow the payment link sent to your WhatsApp and email.", "Ikuti tautan pembayaran yang dikirim ke WhatsApp dan email Anda.");
+    root.innerHTML = `
+      <div class="order-card">
+        <div class="label muted">${L("Order", "Pesanan")} ${o.id} · ${fmtDate(o.date)}</div>
+        <h2>${L("Thank you,", "Terima kasih,")} ${o.name.split(" ")[0]}.</h2>
+        <p class="muted">${o.method === "pickup" ? L("Your order will be ready to collect at", "Pesanan Anda siap diambil di") + " <strong>" + o.store + "</strong> " + L("within 2 hours during store hours. Bring this order number.", "dalam 2 jam pada jam buka. Bawa nomor pesanan ini.") : L("Your order will ship with", "Pesanan Anda akan dikirim dengan") + " <strong>" + o.courier + "</strong> " + L("to", "ke") + " " + o.address + "."}</p>
+        <div class="order-status"><span class="dot"></span>${L("Awaiting payment", "Menunggu pembayaran")} · ${o.payment}</div>
+        <p class="muted" style="font-size:.92rem">${payNote}</p>
+        <div class="co-summary" style="margin-top:20px">
+          ${o.items.map(i => `<div class="co-line">${i.cover ? `<img src="${i.cover}" alt="">` : `<span class="mini"></span>`}<div><strong>${i.title}</strong><span>${i.qty} × ${money(i.price)}</span></div><span>${money(i.price * i.qty)}</span></div>`).join("")}
+          <div class="co-totals">
+            <div><span>${t("Subtotal")}</span><span>${money(o.subtotal)}</span></div>
+            ${o.discount ? `<div class="good"><span>${L("Discounts", "Diskon")}</span><span>−${money(o.discount)}</span></div>` : ""}
+            <div><span>${o.method === "pickup" ? L("Pickup", "Ambil di toko") : L("Shipping", "Ongkir")}</span><span>${o.shipping ? money(o.shipping) : L("Free", "Gratis")}</span></div>
+            <div class="grand"><span>Total</span><span>${money(o.total)}</span></div>
+          </div>
+          ${o.pointsEarned ? `<p class="form-note">+${o.pointsEarned} ${L("Wonder Club points once paid.", "poin Wonder Club setelah dibayar.")}</p>` : ""}
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:22px">
+          <a class="btn btn-dark" href="shop.html">${L("Keep shopping ↗", "Lanjut belanja ↗")}</a>
+          <a class="btn btn-dark" href="account.html">${L("My account ↗", "Akun saya ↗")}</a>
+        </div>
+      </div>`;
+  }
+  render();
+  RERENDER.push(render);
+}
+
+/* ---------- Wonder Club account ---------- */
+function initAccount() {
+  const root = document.querySelector("[data-account-page]");
+  if (!root) return;
+  const L = (en, idn) => (LANG === "id" ? idn : en);
+  function render() {
+    const m = Member.get();
+    if (!m) {
+      root.innerHTML = `
+        <div class="co-grid">
+          <div class="co-main">
+            <div class="co-block">
+              <h3>${L("Join Wonder Club", "Gabung Wonder Club")}</h3>
+              <p class="muted">${L("Free to join. Earn points on every purchase, in store and online, and get a birthday month treat.", "Gratis. Dapatkan poin dari setiap pembelian, di toko maupun online, plus kejutan di bulan ulang tahun.")}</p>
+              <form data-join>
+                <div class="field-row">
+                  <div class="field"><label>${t("Name")}</label><input name="name" required></div>
+                  <div class="field"><label>${L("WhatsApp number", "Nomor WhatsApp")}</label><input name="phone" required placeholder="08…"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field"><label>${t("Email")}</label><input name="email" type="email" required></div>
+                  <div class="field"><label>${L("Birthday", "Tanggal lahir")}</label><input name="birthday" type="date"></div>
+                </div>
+                <div class="field"><label>${L("Home store", "Toko langganan")}</label><select name="store">${STORES.map(s => `<option value="${s.id}">${s.name}</option>`).join("")}</select></div>
+                <button class="btn btn-dark" type="submit">${L("Join free ↗", "Gabung gratis ↗")}</button>
+                <p class="form-note">${L("Already a member in store? Use the same WhatsApp number and we will link your points.", "Sudah jadi anggota di toko? Pakai nomor WhatsApp yang sama dan poin Anda akan ditautkan.")}</p>
+              </form>
+            </div>
+          </div>
+          <aside class="co-side">${benefits()}</aside>
+        </div>`;
+      return;
+    }
+    const tier = Member.tier(m), next = Member.nextTier(m), spend = Member.spend(m), pts = Member.points(m);
+    const orders = Orders.all().filter(o => o.memberEmail === m.email);
+    const pct = next ? Math.min(100, Math.round((spend - tier[1]) / (next[1] - tier[1]) * 100)) : 100;
+    root.innerHTML = `
+      <div class="co-grid">
+        <div class="co-main">
+          <div class="co-block member-card">
+            <div class="member-top"><div><div class="label" style="opacity:.7">Wonder Club · ${tier[0]}</div><h2 style="margin:6px 0 0">${m.name}</h2></div><img src="assets/logo-mark.svg" alt="" style="width:44px"></div>
+            <div class="member-stats">
+              <div><strong>${pts}</strong><span>${L("points", "poin")} · ${L("worth", "senilai")} ${money(Math.floor(pts / CLUB.redeemPoints) * CLUB.redeemValue)}</span></div>
+              <div><strong>${money(spend)}</strong><span>${L("spent this year", "belanja tahun ini")}</span></div>
+              <div><strong>${orders.length}</strong><span>${L("orders", "pesanan")}</span></div>
+            </div>
+            <div class="tier-bar"><span style="width:${pct}%"></span></div>
+            <p class="form-note" style="margin:8px 0 0">${next ? L("Spend", "Belanja") + " " + money(next[1] - spend) + " " + L("more to reach", "lagi untuk mencapai") + " " + next[0] : L("You are at the top tier.", "Anda di tingkat tertinggi.")}</p>
+            ${isBirthdayMonth(m) && m.birthdayUsedYear !== new Date().getFullYear() ? `<div class="order-status good" style="margin-top:14px"><span class="dot"></span>${L("It is your birthday month: " + CLUB.birthdayPct + "% off one order, applied at checkout.", "Ini bulan ulang tahun Anda: diskon " + CLUB.birthdayPct + "% untuk satu pesanan, otomatis di checkout.")}</div>` : ""}
+          </div>
+          <div class="co-block">
+            <h3>${L("Orders", "Pesanan")}</h3>
+            ${orders.length ? orders.map(o => `<a class="order-row" href="order.html?id=${o.id}"><div><strong>${o.id}</strong><span>${fmtDate(o.date)} · ${o.items.length} ${t(o.items.length === 1 ? "item" : "items")} · ${o.method === "pickup" ? o.store : o.courier}</span></div><div><strong>${money(o.total)}</strong><span>${L("Awaiting payment", "Menunggu pembayaran")}</span></div></a>`).join("") : `<p class="muted">${L("No orders yet.", "Belum ada pesanan.")}</p>`}
+          </div>
+          <div class="co-block">
+            <h3>${L("Details", "Data")}</h3>
+            <p class="muted" style="font-size:.92rem">${m.email} · ${m.phone}${m.birthday ? " · " + fmtDate(m.birthday) : ""} · ${L("Home store", "Toko langganan")}: ${(STORES.find(s => s.id === m.store) || STORES[0]).name}</p>
+            <button class="btn btn-dark btn-sm" data-signout>${L("Sign out", "Keluar")}</button>
+          </div>
+        </div>
+        <aside class="co-side">${benefits()}</aside>
+      </div>`;
+  }
+  function benefits() {
+    return `<div class="co-summary">
+      <h3>${L("Member benefits", "Keuntungan anggota")}</h3>
+      <ul class="feature-list light-list">
+        <li><span class="n">01</span><div><strong>1 ${L("point per", "poin per")} ${money(CLUB.earnPer)}</strong><span>${CLUB.redeemPoints} ${L("points", "poin")} = ${money(CLUB.redeemValue)} ${L("off any order.", "potongan untuk pesanan apa pun.")}</span></div></li>
+        <li><span class="n">02</span><div><strong>${L("Birthday month", "Bulan ulang tahun")} ${CLUB.birthdayPct}%</strong><span>${L("Off one order in your birthday month.", "Diskon satu pesanan di bulan ulang tahun Anda.")}</span></div></li>
+        <li><span class="n">03</span><div><strong>${L("Tiers", "Tingkatan")}</strong><span>${CLUB.tiers.map(x => x[0]).join(" → ")} · ${L("by yearly spend.", "berdasarkan belanja tahunan.")}</span></div></li>
+        <li><span class="n">04</span><div><strong>${L("Events first", "Acara lebih dulu")}</strong><span>${L("Early invites to launches, book clubs and kids' activities.", "Undangan lebih awal untuk peluncuran, klub buku, dan aktivitas anak.")}</span></div></li>
+      </ul>
+      <p class="form-note">${L("Programme rules are a draft for the store team to confirm.", "Aturan program masih draf untuk dikonfirmasi tim toko.")}</p>
+    </div>`;
+  }
+  root.addEventListener("submit", e => {
+    const f = e.target.closest("[data-join]"); if (!f) return;
+    e.preventDefault();
+    const d = Object.fromEntries(new FormData(f).entries());
+    Member.set({ name: d.name.trim(), email: d.email.trim().toLowerCase(), phone: d.phone.trim(), birthday: d.birthday || "", store: d.store, joined: new Date().toISOString(), redeemed: 0 });
+    showToast(LANG === "id" ? "Selamat datang di Wonder Club!" : "Welcome to Wonder Club!");
+    render(); renderHeaderMember();
+  });
+  root.addEventListener("click", e => { if (e.target.closest("[data-signout]")) { Member.clear(); render(); renderHeaderMember(); } });
+  render();
+  RERENDER.push(render);
+}
+function renderHeaderMember() {
+  const m = Member.get();
+  document.querySelectorAll("[data-account-link]").forEach(a => { a.textContent = m ? (m.name.split(" ")[0] + " · " + Member.points(m)) : (LANG === "id" ? "Wonder Club" : "Wonder Club"); });
+}
+document.addEventListener("DOMContentLoaded", () => {
+  initCheckout(); initOrderPage(); initAccount(); renderHeaderMember(); RERENDER.push(renderHeaderMember);
+  document.body.addEventListener("click", e => { if (e.target.closest("[data-checkout]") && Cart.items.length) { e.stopImmediatePropagation(); location.href = "checkout.html"; } }, true);
+});
+
+/* =====================================================================
+   Journal: events, news and reading lists (shelf posts embed catalogue books)
+   ===================================================================== */
+const byTitles = (...titles) => () => titles.map(tt => PRODUCTS.find(p => p.title.toLowerCase().startsWith(tt.toLowerCase()))).filter(Boolean);
+const JOURNAL = [
+  { slug: "now-open-pondok-indah-mall-5", type: "news", date: "2026-03-20", img: "assets/img/store-pim5.jpg",
+    title: ["Now open: Pondok Indah Mall 5", "Baru buka: Pondok Indah Mall 5"],
+    excerpt: ["Our sixth store brings the signature green to South Jakarta, with a children's corner and the full gift range.", "Toko keenam membawa hijau khas kami ke Jakarta Selatan, dengan pojok anak dan koleksi hadiah lengkap."],
+    body: [["Wonder Bookstore Pondok Indah Mall 5 opened in March 2026, our fourth store in Greater Jakarta and sixth overall.", "The store carries the full range: imported English-language books across business, self-development, fiction and children's titles, plus stationery and design gifts from Kikkerland, Fred & Friends and IF.", "Come and browse, stay a while, and tell us what you would like to see on the shelves."],
+           ["Wonder Bookstore Pondok Indah Mall 5 dibuka pada Maret 2026, toko keempat kami di Jabodetabek dan keenam secara keseluruhan.", "Toko ini membawa koleksi lengkap: buku impor berbahasa Inggris untuk bisnis, pengembangan diri, fiksi, dan anak, plus alat tulis dan hadiah desain dari Kikkerland, Fred & Friends, dan IF.", "Datang, lihat-lihat, berlama-lamalah, dan beri tahu kami apa yang ingin Anda lihat di rak."]],
+    books: byTitles("Atomic Habits", "Dog Man #14", "The Let Them Theory", "Tuesdays With Morrie") },
+  { slug: "five-reads-for-the-6am-flight", type: "shelf", date: "2026-02-10", img: "assets/img/customers-reading.jpg",
+    title: ["Five reads for the 6AM flight", "Lima bacaan untuk penerbangan pagi"],
+    excerpt: ["Short, absorbing, and easy to pick up before boarding. The store team's picks from the bestseller wall.", "Singkat, menyerap, dan mudah dipilih sebelum boarding. Pilihan tim toko dari rak terlaris."],
+    body: [["Airport reads have one job: hold your attention through boarding, a delay and the first hour in the air.", "These are the titles our team reaches for when a customer asks for \"something for the flight\". Each one is in stock across the six stores."],
+           ["Bacaan bandara punya satu tugas: menjaga perhatian Anda sepanjang boarding, penundaan, dan satu jam pertama di udara.", "Inilah judul yang diambil tim kami saat pelanggan minta \"sesuatu untuk penerbangan\". Semuanya tersedia di enam toko."]],
+    books: byTitles("Tuesdays With Morrie", "The Alchemist", "The Let Them Theory", "Atomic Habits", "The Psychology of Money") },
+  { slug: "dog-man-and-friends", type: "shelf", date: "2026-01-28", img: "assets/img/interior-cibubur.jpg",
+    title: ["Dog Man and friends: starting kids on comics", "Dog Man dan kawan-kawan: mulai komik untuk anak"],
+    excerpt: ["Dav Pilkey's series is the reason so many seven-year-olds now read on their own. Where to start, and what comes next.", "Seri Dav Pilkey adalah alasan banyak anak tujuh tahun kini membaca sendiri. Mulai dari mana, dan lanjut ke mana."],
+    body: [["Dog Man is our best-selling children's series by a wide margin, and for good reason: the jokes land, the drawings are generous, and the chapters are short enough to finish before bedtime.", "Start with Dog Man #1, then follow the numbers. When they have read them all, Cat Kid Comic Club teaches them to make their own."],
+           ["Dog Man adalah seri anak terlaris kami dengan selisih jauh, dan alasannya jelas: leluconnya kena, gambarnya murah hati, dan babnya cukup pendek untuk selesai sebelum tidur.", "Mulai dari Dog Man #1, lalu ikuti nomornya. Setelah semuanya dibaca, Cat Kid Comic Club mengajari mereka membuat komik sendiri."]],
+    books: () => PRODUCTS.filter(p => /dog man|cat kid/i.test(p.title)).sort((a, b) => b.sold - a.sold) },
+  { slug: "classics-worth-keeping", type: "shelf", date: "2025-12-05", img: "assets/img/interior-pim5.jpg",
+    title: ["Classics worth keeping", "Buku klasik yang layak disimpan"],
+    excerpt: ["Wordsworth editions make the canon affordable. The ones to put on the shelf first.", "Edisi Wordsworth membuat karya klasik terjangkau. Yang pertama layak masuk rak."],
+    body: [["The classics shelf is where most people start with good intentions and stall. These editions remove the excuse: readable type, sturdy paperbacks, and prices that make it easy to buy two.", "Pick one novel and one you have always meant to read. Keep both."],
+           ["Rak klasik adalah tempat banyak orang memulai dengan niat baik lalu berhenti. Edisi ini menghapus alasannya: huruf yang nyaman dibaca, paperback kokoh, dan harga yang membuat beli dua terasa mudah.", "Pilih satu novel dan satu yang selalu ingin Anda baca. Simpan keduanya."]],
+    books: () => PRODUCTS.filter(p => p.publisher === "Wordsworth") },
+  { slug: "wonder-anniversary-with-ryan-geraldin", type: "event", date: "2025-11-15", img: "assets/img/events/anniversary-ryan-geraldin.jpg",
+    title: ["Wonder anniversary with Ryan Geraldin", "Ulang tahun Wonder bersama Ryan Geraldin"],
+    excerpt: ["Artist Ryan Geraldin took over the bestseller wall with prints, tees and caps for our anniversary.", "Seniman Ryan Geraldin mengisi rak terlaris dengan print, kaus, dan topi untuk ulang tahun kami."],
+    body: [["For our anniversary we invited Jakarta artist Ryan Geraldin into the store. His line drawings covered prints, tote bags, tees and a cap, displayed between the business and self-help shelves.", "Collaborations like this are how we keep the stores changing with every season. Follow @wonderbookstoreofficial for the next one."],
+           ["Untuk ulang tahun kami, seniman Jakarta Ryan Geraldin kami undang ke toko. Gambar garisnya memenuhi print, tote bag, kaus, dan topi, dipajang di antara rak bisnis dan pengembangan diri.", "Kolaborasi seperti ini membuat toko terus berubah setiap musim. Ikuti @wonderbookstoreofficial untuk yang berikutnya."]],
+    store: "Ashta District 8" },
+  { slug: "soiree-sore-with-ghea-resort", type: "event", date: "2025-09-20", img: "assets/img/events/ghea-resort.jpg",
+    title: ["Soirée Sore: Tropical Bohemian with Ghea Resort", "Soirée Sore: Tropical Bohemian bersama Ghea Resort"],
+    excerpt: ["An afternoon of resort wear, talks and books in the store with Ghea Resort by Amanda Janna.", "Sore dengan busana resor, bincang, dan buku di toko bersama Ghea Resort by Amanda Janna."],
+    body: [["Ghea Resort by Amanda Janna brought its Tropical Bohemian collection into the store for an afternoon soirée, with a limited collaboration rack, a talk and a very full room.", "Events like this are open to everyone. Wonder Club members get the invitation first."],
+           ["Ghea Resort by Amanda Janna membawa koleksi Tropical Bohemian ke toko untuk sebuah soirée sore, dengan rak kolaborasi terbatas, bincang, dan ruangan yang sangat penuh.", "Acara seperti ini terbuka untuk semua. Anggota Wonder Club mendapat undangan lebih dulu."]] },
+  { slug: "book-launch-kareem-and-khaleel", type: "event", date: "2025-08-09", img: "assets/img/events/kareem-khaleel-launch.jpg",
+    title: ["Book launch and career-moms sharing with Kareem & Khaleel", "Peluncuran buku dan sharing career moms bersama Kareem & Khaleel"],
+    excerpt: ["Kareem & Khaleel launched their children's title in store, with a sharing session for working mothers.", "Kareem & Khaleel meluncurkan buku anak mereka di toko, dengan sesi berbagi untuk ibu bekerja."],
+    body: [["A full house for the launch of Kareem & Khaleel's new picture book, followed by a sharing session on raising readers while building a career.", "The kids' corner turned into a reading circle for the afternoon. We host author events across all six stores; get in touch if you would like to launch with us."],
+           ["Ruangan penuh untuk peluncuran buku bergambar baru Kareem & Khaleel, disusul sesi berbagi tentang membesarkan pembaca sambil membangun karier.", "Pojok anak berubah menjadi lingkaran membaca sepanjang sore. Kami mengadakan acara penulis di keenam toko; hubungi kami jika ingin meluncurkan buku bersama."]] },
+  { slug: "mirror-decorating-with-ruang-kreasi", type: "event", date: "2024-12-14", img: "assets/img/events/ruang-kreasi-mirror.jpg",
+    title: ["Mirror decorating for kids with Ruang Kreasi", "Menghias cermin untuk anak bersama Ruang Kreasi"],
+    excerpt: ["Clay, flowers and a lot of glitter: a Saturday craft session for kids with Ruang Kreasi and Banana & Rover.", "Clay, bunga, dan banyak glitter: sesi kerajinan Sabtu untuk anak bersama Ruang Kreasi dan Banana & Rover."],
+    body: [["Ruang Kreasi set up a clay station in the store and every child left with a decorated mirror. Banana & Rover supported the session.", "Kids' activities run regularly across the stores, especially in the school holidays. Check the journal or Instagram for the next date."],
+           ["Ruang Kreasi menyiapkan stasiun clay di toko dan setiap anak pulang membawa cermin hiasan sendiri. Banana & Rover mendukung sesi ini.", "Aktivitas anak berjalan rutin di berbagai toko, terutama saat liburan sekolah. Cek jurnal atau Instagram untuk tanggal berikutnya."]] },
+  { slug: "collaboration-with-rsia-bina-medika", type: "event", date: "2024-10-05", img: "assets/img/events/rsia-bina-medika.jpg",
+    title: ["Collaboration event with RSIA Bina Medika", "Acara kolaborasi bersama RSIA Bina Medika"],
+    excerpt: ["A family day in the store with the maternity and children's hospital RSIA Bina Medika.", "Hari keluarga di toko bersama rumah sakit ibu dan anak RSIA Bina Medika."],
+    body: [["Together with RSIA Bina Medika we hosted a family afternoon: a talk for parents, story time for the little ones, and a picture-book table to take home.", "If your organisation would like to run a session with us, the events contact is on the stores page."],
+           ["Bersama RSIA Bina Medika kami mengadakan sore keluarga: bincang untuk orang tua, story time untuk si kecil, dan meja buku bergambar untuk dibawa pulang.", "Jika organisasi Anda ingin mengadakan sesi bersama kami, kontak acara ada di halaman toko."]] }
+];
+const TYPE_LABEL = { event: ["Event", "Acara"], news: ["News", "Kabar"], shelf: ["Reading list", "Daftar bacaan"] };
+function postCard(p, cls = "") {
+  const i = LANG === "id" ? 1 : 0;
+  const books = p.books ? p.books().slice(0, 4) : [];
+  return `
+    <a class="post-card ${cls}" href="post.html?slug=${p.slug}">
+      <div class="post-img"><img src="${p.img}" alt="" loading="lazy"><span class="post-type">${TYPE_LABEL[p.type][i]}</span></div>
+      <div class="post-body">
+        <div class="post-meta">${fmtDate(p.date)}${p.store ? " · " + p.store : ""}</div>
+        <h3>${p.title[i]}</h3>
+        <p>${p.excerpt[i]}</p>
+        ${books.length ? `<div class="post-books">${books.map(b => b.cover ? `<img src="${b.cover}" alt="${b.title}" title="${b.title}">` : `<span style="background:${colorOf(b)}"></span>`).join("")}<em>${books.length} ${LANG === "id" ? "buku" : "books"} ↗</em></div>` : ""}
+      </div>
+    </a>`;
+}
+function initJournal() {
+  const root = document.querySelector("[data-journal]");
+  if (!root) return;
+  const filterEl = document.querySelector("[data-journal-filter]");
+  let type = new URLSearchParams(location.search).get("type") || "all";
+  function render() {
+    const i = LANG === "id" ? 1 : 0;
+    const list = JOURNAL.filter(p => type === "all" || p.type === type).sort((a, b) => b.date.localeCompare(a.date));
+    if (filterEl) filterEl.innerHTML = [["all", LANG === "id" ? "Semua" : "All"], ["event", TYPE_LABEL.event[i]], ["shelf", TYPE_LABEL.shelf[i]], ["news", TYPE_LABEL.news[i]]].map(([k, l]) => `<button class="seg ${k === type ? "active" : ""}" data-jtype="${k}">${l}</button>`).join("");
+    const [lead, ...rest] = list;
+    root.innerHTML = (lead ? `<div class="journal-lead">${postCard(lead, "lead")}</div>` : "") + `<div class="post-grid">${rest.map(p => postCard(p)).join("")}</div>`;
+  }
+  if (filterEl) filterEl.addEventListener("click", e => { const b = e.target.closest("[data-jtype]"); if (!b) return; type = b.dataset.jtype; render(); });
+  render(); RERENDER.push(render);
+  const home = document.querySelector("[data-journal-home]");
+  if (home) { const r = () => { home.innerHTML = JOURNAL.slice().sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3).map(p => postCard(p)).join(""); }; r(); RERENDER.push(r); }
+}
+function initHomeJournal() {
+  const home = document.querySelector("[data-journal-home]");
+  if (!home || document.querySelector("[data-journal]")) return;
+  const r = () => { home.innerHTML = JOURNAL.slice().sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3).map(p => postCard(p)).join(""); };
+  r(); RERENDER.push(r);
+}
+function initPost() {
+  const root = document.querySelector("[data-post]");
+  if (!root) return;
+  const slug = new URLSearchParams(location.search).get("slug");
+  const p = JOURNAL.find(x => x.slug === slug) || JOURNAL[0];
+  function render() {
+    const i = LANG === "id" ? 1 : 0;
+    const books = p.books ? p.books() : [];
+    document.title = p.title[i] + " — Wonder Bookstore";
+    const related = JOURNAL.filter(x => x.slug !== p.slug && (x.type === p.type)).slice(0, 3);
+    root.innerHTML = `
+      <article class="post">
+        <div class="post-hero"><img src="${p.img}" alt=""></div>
+        <div class="post-wrap">
+          <div class="post-meta"><span class="post-type inline">${TYPE_LABEL[p.type][i]}</span> ${fmtDate(p.date)}${p.store ? " · " + p.store : ""}</div>
+          <h1>${p.title[i]}</h1>
+          <p class="post-lead">${p.excerpt[i]}</p>
+          <div class="post-text">${p.body[i].map(par => `<p>${par}</p>`).join("")}</div>
+        </div>
+        ${books.length ? `
+        <div class="post-shelf">
+          <div class="container">
+            <div class="rail-head"><div><div class="label muted" style="margin-bottom:10px">${LANG === "id" ? "Buku dalam cerita ini" : "Books in this story"}</div><h2>${LANG === "id" ? "Rak dari jurnal" : "The shelf"}</h2></div><a class="link" href="shop.html">${t("Check all books ↗")}</a></div>
+            <div class="rail-wrap" data-rail-wrap>
+              <div class="rail book-grid">${books.map(productCard).join("")}</div>
+              <div class="rail-foot"><div class="progress"><span></span></div><div class="slide-arrows"><button class="arrow-btn" data-prev aria-label="Previous">←</button><button class="arrow-btn" data-next aria-label="Next">→</button></div></div>
+            </div>
+          </div>
+        </div>` : ""}
+        <div class="post-wrap">
+          <div class="post-share"><a class="btn btn-dark btn-sm" href="https://wa.me/?text=${encodeURIComponent(p.title[i] + " — " + location.href)}" target="_blank" rel="noopener">${LANG === "id" ? "Bagikan ke WhatsApp ↗" : "Share on WhatsApp ↗"}</a> <a class="btn btn-dark btn-sm" href="journal.html">${LANG === "id" ? "Semua cerita ↗" : "All stories ↗"}</a></div>
+        </div>
+        ${related.length ? `<div class="container" style="margin-top:56px"><div class="section-head"><div><h2 style="font-size:2rem">${LANG === "id" ? "Cerita lainnya" : "More stories"}</h2></div></div><div class="post-grid">${related.map(x => postCard(x)).join("")}</div></div>` : ""}
+      </article>`;
+    initRails();
+  }
+  render(); RERENDER.push(render);
+}
+document.addEventListener("DOMContentLoaded", () => { initJournal(); initHomeJournal(); initPost(); });

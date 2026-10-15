@@ -28,6 +28,22 @@ The site is bilingual (ID / EN) with a toggle in the header. The browser languag
 
 `assets/products.js` holds the catalogue: 104 books from the Sinar Starbooks catalogue (title, author, publisher, retail price, category, units sold in April, stock, ISBN) plus six gift and stationery items. Cover images are in `assets/covers/` (80 of the 104 titles have one; the rest show a coloured tile). Brand logos are in `assets/logos/`. Bestseller ranks, the trending strip, "sold last month" lines and "store favourites" (the top seller per category) are all computed from the real unit sales.
 
+## Checkout, Wonder Club and journal (front-end flows)
+
+- `checkout.html`: contact, delivery (free pickup at any of the six stores, or shipping with JNE / J&T / SiCepat / Gojek Instant by zone, free from Rp 350.000) and payment (QRIS, GoPay, ShopeePay, BCA / Mandiri / BNI / BRI virtual accounts, cards, Indomaret / Alfamart, pay in store on pickup). Places a demo order in the browser; no payment is taken until Midtrans is connected.
+- `order.html`: confirmation with pickup or courier details and payment instructions.
+- `account.html`: Wonder Club join and member dashboard: points, tier, birthday-month treat, order history. Stored in the browser only.
+- `journal.html` / `post.html`: events, store news and reading lists. Reading-list posts embed catalogue books with Add buttons. Posts live in the `JOURNAL` array in `assets/script.js`.
+- `faq.html`: grouped FAQ (orders and shipping, pickup, payment, Wonder Club, books and stock, events).
+
+Loyalty rules in the prototype (drafts for the team): 1 point per Rp 1.000, 100 points = Rp 10.000 off, birthday month 30% off one order (from the in-store poster), tiers Reader / Bookworm / Wonderer by yearly spend, points expire after 12 months.
+
+## Going live: OpenCart, payments, shipping, Jubelio
+
+- `docs/opencart-migration.md` maps every page and feature to OpenCart 4 and lists the extensions: Midtrans (payments), RajaOngkir or Biteship (shipping rates), multi-store pickup, reward points and customer groups (Wonder Club), a blog extension (journal), language packs (ID / EN).
+- `node tools/export-opencart.mjs` writes `opencart/products.csv` and `opencart/categories.csv` for import.
+- `tools/sync-jubelio.mjs` pulls items, prices and stock from Jubelio into `assets/products.js`; `docs/sync-jubelio.workflow.yml` (move it to `.github/workflows/` after running `gh auth refresh -s workflow`) runs it every 3 hours once the `JUBELIO_EMAIL` and `JUBELIO_PASSWORD` repository secrets are set. Endpoint paths and field names are configurable at the top of the script and must be checked against developer.jubelio.com for your account.
+
 ## Pages
 
 - `index.html` — home: ticker, slideshow, bestseller rail, curated shelves, concept, coffee shop, gifts rail, impact number, store grid, FAQ, community, newsletter
@@ -64,7 +80,10 @@ Then open http://localhost:8080.
 - **Opening hours** are written as "open daily during mall hours"; replace with real hours per store.
 - **Google Maps links** are search links by store name; swap for the exact place links from the deck.
 - **WhatsApp numbers** per store are not on the site yet; add them in the contact section of `stores.html`.
-- **Checkout** and the **newsletter / contact forms** are front-end only (they show a confirmation and do not send anything).
+- **Checkout, orders and Wonder Club** are front-end demos in the browser. Points are credited immediately in the demo; in production they are credited after payment.
+- **Shipping rates and delivery times** are estimates until a rate API is connected.
+- **Journal event dates** are approximate; confirm them with the team. Event photos come from the proposal deck.
+- **Newsletter / contact forms** show a confirmation and do not send anything.
 - **FAQ answers** are drafts; confirm them with the store team.
 - **Social proof lines** now read from real data: "N sold last month" and "#1 in <category> last month". Refresh `assets/products.js` monthly so they stay true.
 - **Ticker messages** live at the top of each HTML file; edit them there.

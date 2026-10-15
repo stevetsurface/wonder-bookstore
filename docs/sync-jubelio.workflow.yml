@@ -1,0 +1,27 @@
+name: Sync stock and prices from Jubelio
+on:
+  schedule:
+    - cron: "0 */3 * * *"   # every 3 hours (UTC)
+  workflow_dispatch:
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Pull from Jubelio
+        env:
+          JUBELIO_EMAIL: ${{ secrets.JUBELIO_EMAIL }}
+          JUBELIO_PASSWORD: ${{ secrets.JUBELIO_PASSWORD }}
+        run: node tools/sync-jubelio.mjs
+      - name: Commit if changed
+        run: |
+          git config user.name "wonder-sync"
+          git config user.email "sync@wonderstore.co.id"
+          git add assets/products.js
+          git diff --cached --quiet || git commit -m "Sync stock and prices from Jubelio"
+          git push
