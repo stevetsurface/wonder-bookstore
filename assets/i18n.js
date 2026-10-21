@@ -214,6 +214,11 @@ window.PAGE_I18N = {
   "A separate contact handles Instagram and collaboration enquiries. Use the form on the stores page and choose &quot;Events &amp; collaborations&quot;.": "Kontak terpisah menangani pertanyaan Instagram dan kolaborasi. Gunakan formulir di halaman toko dan pilih &quot;Acara &amp; kolaborasi&quot;.",
   "What are the opening hours?": "Jam bukanya kapan?",
   "Stores open daily during their mall's hours. Berawa is a street-level store and opens daily. Each store's page has a Maps link.": "Toko buka setiap hari mengikuti jam mal. Berawa adalah toko di tepi jalan dan buka setiap hari. Setiap halaman toko punya tautan Maps.",
+  "TITLE:Book Finder — Wonder Bookstore": "Pencari Buku — Wonder Bookstore",
+  "Find your next book": "Temukan buku berikutnya", "Five quick questions. Real picks from six stores. A reading personality you can share.": "Lima pertanyaan singkat. Pilihan nyata dari enam toko. Kepribadian membaca yang bisa dibagikan.",
+  "Book finder": "Pencari buku", "Book finder ↗": "Pencari buku ↗", "Find your next book in 60 seconds": "Temukan buku berikutnya dalam 60 detik",
+  "Five quick questions, real picks from the shelves, and a reading personality to share with friends.": "Lima pertanyaan singkat, pilihan nyata dari rak, dan kepribadian membaca untuk dibagikan ke teman.",
+  "Start the finder ↗": "Mulai pencari ↗",
   /* trending strip */
   "Trending in store": "Sedang ramai di toko", "Most bought this week across six stores": "Paling banyak dibeli minggu ini di enam toko",
   "Bestsellers": "Terlaris", "Staff picks": "Pilihan staf", "New arrivals": "Baru datang"

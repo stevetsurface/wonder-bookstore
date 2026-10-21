@@ -44,6 +44,12 @@ Loyalty rules in the prototype (drafts for the team): 1 point per Rp 1.000, 100 
 - `node tools/export-opencart.mjs` writes `opencart/products.csv` and `opencart/categories.csv` for import.
 - `tools/sync-jubelio.mjs` pulls items, prices and stock from Jubelio into `assets/products.js`; `docs/sync-jubelio.workflow.yml` (move it to `.github/workflows/` after running `gh auth refresh -s workflow`) runs it every 3 hours once the `JUBELIO_EMAIL` and `JUBELIO_PASSWORD` repository secrets are set. Endpoint paths and field names are configurable at the top of the script and must be checked against developer.jubelio.com for your account.
 
+## Book finder (top-of-funnel tool)
+
+`finder.html` is a 60-second quiz: who the book is for (me / gift / kid, with age for kids), what you want from it, time available, taste and budget. It scores the real catalogue with hand-set tags in `assets/finder.js` (mood, length, classic, gift, kid age bands) and shows six picks with a one-line "why", Add buttons, a shareable reading-personality result (`?a=` in the URL encodes the answers, so results can be shared on WhatsApp or embedded in ads and Instagram bios), and a "save these picks" form that joins Wonder Club. Completions push a `finder_complete` event to `dataLayer` for GA4 when a tag manager is added.
+
+To tune recommendations, edit the id sets in `TAGS` at the top of `assets/finder.js` (ids are the product ids in `assets/products.js`).
+
 ## Pages
 
 - `index.html` — home: ticker, slideshow, bestseller rail, curated shelves, concept, coffee shop, gifts rail, impact number, store grid, FAQ, community, newsletter
