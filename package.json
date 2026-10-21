@@ -1,0 +1,16 @@
+{
+  "name": "wonder-bookstore",
+  "private": true,
+  "type": "module",
+  "description": "Wonder Bookstore website with the AI bookseller proxy",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "export:opencart": "node tools/export-opencart.mjs",
+    "sync:jubelio": "node tools/sync-jubelio.mjs",
+    "test:api": "node tools/test-recommend.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.90.0",
+    "zod": "^3.24.0"
+  }
+}

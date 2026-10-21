@@ -50,6 +50,10 @@ Loyalty rules in the prototype (drafts for the team): 1 point per Rp 1.000, 100 
 
 To tune recommendations, edit the id sets in `TAGS` at the top of `assets/finder.js` (ids are the product ids in `assets/products.js`).
 
+## AI bookseller
+
+The finder page also has an "Ask the bookseller" chat powered by Claude through a Vercel serverless function (`api/recommend.js`). It recommends only catalogue titles, returns structured picks that are validated against our data, and caches the catalogue prompt. Setup and tuning: `docs/ai-bookseller.md`.
+
 ## Pages
 
 - `index.html` — home: ticker, slideshow, bestseller rail, curated shelves, concept, coffee shop, gifts rail, impact number, store grid, FAQ, community, newsletter

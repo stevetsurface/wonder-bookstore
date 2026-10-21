@@ -1,17 +1,7 @@
 /* Wonder Book Finder: a 60-second quiz that recommends from the real catalogue.
    Shareable results (?a=...), reading personality, and a Wonder Club capture. */
 (function () {
-  const ids = (...n) => new Set(n);
-  const TAGS = {
-    grow: ids(3, 5, 11, 12, 13, 14, 81, 90, 85), money: ids(6, 7, 87, 91, 90), calm: ids(8, 9, 10, 13, 2, 4, 81, 18, 19, 20, 21),
-    heart: ids(4, 2, 73, 36, 79, 80, 78, 34, 22, 23, 27, 102, 101), think: ids(29, 77, 88, 89, 92, 86, 85, 83, 82, 94, 24, 93, 13, 6),
-    escape: ids(15, 16, 17, 18, 19, 20, 21, 22, 23, 31, 32, 33, 34, 35, 37, 74, 75, 76, 104, 30, 25, 26, 28, 103), laugh: ids(11, 12, 21, 52, 53, 54, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 60),
-    short: ids(2, 15, 18, 19, 20, 21, 8, 9, 10, 81, 79, 80, 35, 16, 93, 77, 103, 12, 3), long: ids(23, 25, 26, 32, 33, 37, 76, 88, 104, 24, 87, 82, 89, 31, 17),
-    classic: ids(24, 25, 26, 27, 28, 29, 101, 102, 103, 77, 76, 87, 93, 3, 2, 15), gift: ids(18, 20, 2, 15, 5, 81, 35, 34, 58, 60, 64, 6, 88, 9, 10),
-    kid0: ids(58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70), kid5: ids(38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 70, 63, 64, 100),
-    kid9: ids(52, 53, 54, 71, 72, 55, 44, 45, 46, 47, 48, 49, 50), teen: ids(71, 72, 55, 56, 57, 34, 35, 73, 22, 36, 29, 31, 33, 76, 77, 32),
-    skip: ids(95, 96, 97, 98, 99)
-  };
+  const TAGS = (typeof window !== "undefined" ? window : globalThis).BOOK_TAGS;
   const has = (tag, p) => TAGS[tag] && TAGS[tag].has(p.id);
   const L = (en, id) => (LANG === "id" ? id : en);
 
