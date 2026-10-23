@@ -967,3 +967,7 @@ body.cart-open .drawer-backdrop { opacity: 1; pointer-events: auto; }
   .slideshow > .slide { display: flex !important; }
   .slideshow .slide-grid { flex: 1; min-height: 100%; justify-content: flex-end; background: linear-gradient(to top, rgba(15,45,36,.96) 0%, rgba(15,45,36,.7) 40%, rgba(15,45,36,.08) 100%); }
 }
+/* shop column must never widen past the viewport on phones */
+.shop-layout > div { min-width: 0; }
+.segs { flex-wrap: wrap; }
+@media (max-width: 680px) { .shop-top { align-items: flex-start; } .segs { border-radius: 16px; } }
