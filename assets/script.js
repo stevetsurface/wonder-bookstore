@@ -192,6 +192,7 @@ function productCard(p) {
         <h3>${p.title}</h3>
         <span class="author">${p.author}</span>
         <div class="meta-row"><span class="pub">${p.publisher}</span>${stockLabel(p)}</div>
+        ${moodChips(p, 2)}
         ${proof(p)}
         <div class="book-foot">
           <span class="price">${money(p.price)}</span>
@@ -207,6 +208,7 @@ function productRow(p) {
       <div class="row-main">
         <div class="row-title"><h3>${p.title}</h3>${rankPill(p)}${coverBadge(p)}</div>
         <div class="row-sub">${p.author} · ${p.publisher} · ${catLabel(p.category)}</div>
+        ${moodChips(p, 4)}
         <div class="meta-row">${p.isbn ? `<span class="pub">ISBN ${p.isbn}</span>` : "<span></span>"}${stockLabel(p)}</div>
         ${proof(p)}
       </div>
@@ -276,6 +278,7 @@ function initShop() {
   let type = TYPES.includes(params.get("type")) ? params.get("type") : "All";
   let category = params.get("cat") || "All";
   let collection = params.get("col") || "all";
+  const mood = params.get("mood") || "";
   let view = "grid";
   try { view = localStorage.getItem("wonder-view") || "grid"; } catch {}
   if (params.get("q")) search.value = params.get("q");
@@ -308,6 +311,7 @@ function initShop() {
     let list = PRODUCTS.filter(p => (type === "All" || p.type === type) && (category === "All" || p.category === category) &&
       (collection === "all" || (collection === "best" && BEST_RANK[p.id]) || (collection === "picks" && p.pick) || (collection === "stock" && p.inStock)) &&
       (brand === "All" || p.brand === brand) &&
+      (!mood || (TAGS_ALL && TAGS_ALL[mood] && TAGS_ALL[mood].has(p.id))) &&
       (!q || p.title.toLowerCase().includes(q) || p.author.toLowerCase().includes(q) || p.publisher.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q) || (p.isbn || "").includes(q)));
     switch (sort.value) {
       case "best": list.sort((a, b) => b.sold - a.sold); break;
@@ -316,7 +320,7 @@ function initShop() {
       case "title": list.sort((a, b) => a.title.localeCompare(b.title)); break;
       default: list.sort((a, b) => (BEST_RANK[a.id] || 99) - (BEST_RANK[b.id] || 99) || (b.pick ? 1 : 0) - (a.pick ? 1 : 0) || b.sold - a.sold);
     }
-    count.textContent = `${list.length} ${t(list.length === 1 ? "item" : "items")}` + (type !== "All" ? ` · ${t(type)}` : "") + (category !== "All" ? ` · ${t(category)}` : "");
+    count.textContent = `${list.length} ${t(list.length === 1 ? "item" : "items")}` + (type !== "All" ? ` · ${t(type)}` : "") + (category !== "All" ? ` · ${t(category)}` : "") + (mood && MOOD_LABEL[mood] ? ` · ${MOOD_LABEL[mood][LANG === "id" ? 1 : 0]}` : "");
     grid.className = view === "list" ? "book-list" : view === "compact" ? "book-compact" : "book-grid";
     const fn = view === "list" ? productRow : view === "compact" ? productTile : productCard;
     grid.innerHTML = list.length ? list.map(fn).join("") : `<div class="empty"><p>${t("Nothing matches that search.")}</p></div>`;
@@ -949,3 +953,199 @@ function initPost() {
   render(); RERENDER.push(render);
 }
 document.addEventListener("DOMContentLoaded", () => { initJournal(); initHomeJournal(); initPost(); });
+
+/* =====================================================================
+   App-style layer (patterns from Goodreads, Kindle, StoryGraph, Fable, Etsy via Appllama):
+   bottom tab bar + mobile search, ranked top reads, "Popular in" feed, setup checklist, product page, mood chips
+   ===================================================================== */
+const TAGS_ALL = (typeof window !== "undefined" && window.BOOK_TAGS) || null;
+const MOOD_LABEL = { grow: ["Grow", "Bertumbuh"], money: ["Money", "Uang"], calm: ["Calm", "Tenang"], heart: ["Heart", "Hati"], think: ["Think", "Berpikir"], escape: ["Escape", "Cerita"], laugh: ["Funny", "Lucu"], short: ["Quick read", "Bacaan cepat"], long: ["Big book", "Buku tebal"], classic: ["Classic", "Klasik"], gift: ["Gift-worthy", "Cocok hadiah"], kid0: ["Ages 0–4", "Usia 0–4"], kid5: ["Ages 5–8", "Usia 5–8"], kid9: ["Ages 9–12", "Usia 9–12"], teen: ["Teen", "Remaja"] };
+function moodsOf(p) { if (!TAGS_ALL) return []; return Object.keys(MOOD_LABEL).filter(k => TAGS_ALL[k] && TAGS_ALL[k].has(p.id)); }
+function moodChips(p, max = 3) { const m = moodsOf(p).slice(0, max); return m.length ? `<div class="moods">${m.map(k => `<a class="mood" href="shop.html?mood=${k}">${MOOD_LABEL[k][LANG === "id" ? 1 : 0]}</a>`).join("")}</div>` : ""; }
+function productUrl(p) { return `product.html?id=${p.id}`; }
+
+/* Bottom tab bar + mobile search row, injected on every page */
+function initAppShell() {
+  if (document.querySelector(".tabbar")) return;
+  const path = location.pathname.split("/").pop() || "index.html";
+  const L = (en, id) => (LANG === "id" ? id : en);
+  const tabs = [
+    ["index.html", "⌂", L("Home", "Beranda")], ["shop.html", "▦", L("Shop", "Belanja")], ["finder.html", "✦", L("Finder", "Pencari")], ["account.html", "◎", L("Club", "Club")]
+  ];
+  const bar = document.createElement("nav");
+  bar.className = "tabbar";
+  bar.setAttribute("aria-label", "Main");
+  bar.innerHTML = tabs.map(([href, ic, lab]) => `<a href="${href}" class="${path === href ? "active" : ""}"><span class="ic">${ic}</span><span>${lab}</span></a>`).join("") +
+    `<button data-open-cart><span class="ic">▭<b class="tab-count" data-cart-count>0</b></span><span>${L("Bag", "Tas")}</span></button>`;
+  document.body.appendChild(bar);
+  const header = document.querySelector(".site-header");
+  if (header && !document.querySelector(".msearch")) {
+    const row = document.createElement("form");
+    row.className = "msearch"; row.setAttribute("data-search-form", "");
+    row.innerHTML = `<input type="search" placeholder="${L("Title, author or ISBN", "Judul, penulis, atau ISBN")}" aria-label="Search"><button type="submit" aria-label="Search">↗</button>`;
+    header.insertAdjacentElement("afterend", row);
+    row.addEventListener("submit", e => { e.preventDefault(); const q = row.querySelector("input").value.trim(); location.href = "shop.html" + (q ? "?q=" + encodeURIComponent(q) : ""); });
+  }
+  Cart.render();
+}
+
+/* Home: category chips + ranked top reads + "Popular in" feed + setup checklist */
+function initHomeFeed() {
+  const chips = document.querySelector("[data-home-chips]");
+  const top = document.querySelector("[data-top-reads]");
+  const feed = document.querySelector("[data-popular-feed]");
+  const check = document.querySelector("[data-setup]");
+  if (!chips && !top && !feed && !check) return;
+  const L = (en, id) => (LANG === "id" ? id : en);
+  function render() {
+    if (chips) {
+      const cats = ["Fiction", "Self-Development", "Children", "Business", "Psychology", "Comics & Manga"];
+      chips.innerHTML = `<a class="hchip active" href="shop.html">${t("All")}</a>` + cats.map(c => `<a class="hchip" href="shop.html?cat=${encodeURIComponent(c)}">${t(c)}</a>`).join("") + `<a class="hchip" href="shop.html?type=Gifts">${t("Gifts")}</a>`;
+    }
+    if (top) {
+      const books = PRODUCTS.filter(p => p.type === "Books").sort((a, b) => b.sold - a.sold).slice(0, 10);
+      top.innerHTML = books.map((p, i) => `
+        <a class="ranked" href="${productUrl(p)}">
+          <span class="rank-n">${i + 1}</span>
+          ${p.cover ? `<img src="${p.cover}" alt="${p.title}" loading="lazy">` : `<span class="rank-tile" style="background:${colorOf(p)}">${p.title}</span>`}
+          <strong>${p.title}</strong><span>${p.author}</span>
+        </a>`).join("");
+    }
+    if (feed) {
+      const cats = [["Fiction", L("Popular in Fiction", "Populer di Fiksi")], ["Self-Development", L("Trending this month in Self-Development", "Sedang tren di Pengembangan Diri")], ["Children", L("Kids' corner favourite", "Favorit pojok anak")], ["Business", L("Popular in Business", "Populer di Bisnis")]];
+      feed.innerHTML = cats.map(([c, label]) => {
+        const list = PRODUCTS.filter(p => p.category === c).sort((a, b) => b.sold - a.sold);
+        const p = list[0]; if (!p) return "";
+        const more = list.slice(1, 4);
+        return `
+          <article class="feed-card">
+            <div class="feed-label">${label} <a href="shop.html?cat=${encodeURIComponent(c)}">${L("See all", "Lihat semua")} ↗</a></div>
+            <div class="feed-main">
+              <a href="${productUrl(p)}" class="feed-cover">${p.cover ? `<img src="${p.cover}" alt="${p.title}">` : `<span style="background:${colorOf(p)}">${p.title}</span>`}</a>
+              <div class="feed-body">
+                <a href="${productUrl(p)}"><h3>${p.title}</h3></a>
+                <div class="author">${p.author} · ${p.publisher}</div>
+                ${moodChips(p)}
+                ${proof(p)}
+                <div class="feed-actions"><button class="btn btn-dark btn-sm" data-add="${p.id}">${t("Add")} · ${money(p.price)}</button><a class="btn btn-sm btn-ghost" href="${productUrl(p)}">${L("Details", "Detail")} ↗</a></div>
+              </div>
+            </div>
+            ${more.length ? `<div class="feed-more">${more.map(m => `<a href="${productUrl(m)}" title="${m.title}">${m.cover ? `<img src="${m.cover}" alt="${m.title}" loading="lazy">` : `<span style="background:${colorOf(m)}"></span>`}</a>`).join("")}<span class="muted">${L("Also popular", "Juga populer")}</span></div>` : ""}
+          </article>`;
+      }).join("");
+    }
+    if (check) {
+      const member = Member.get();
+      let finder = null; try { finder = JSON.parse(localStorage.getItem("wonder-finder-last")); } catch {}
+      const items = [
+        [!!finder, "finder.html", "✦", L("Find your next book", "Temukan buku berikutnya"), L("60-second quiz", "Kuis 60 detik")],
+        [!!member, "account.html", "◎", L("Join Wonder Club", "Gabung Wonder Club"), L("Points on every purchase", "Poin dari setiap pembelian")],
+        [!!(member && member.store), "stores.html", "⌂", L("Pick your home store", "Pilih toko langganan"), L("Six stores, Jakarta & Bali", "Enam toko, Jakarta & Bali")],
+        [false, "https://www.instagram.com/wonderbookstoreofficial", "↗", L("Follow for events", "Ikuti untuk acara"), "@wonderbookstoreofficial"]
+      ];
+      const done = items.filter(i => i[0]).length;
+      check.innerHTML = `
+        <div class="setup">
+          <div class="setup-head"><div><div class="label" style="opacity:.7">${L("Welcome!", "Selamat datang!")}</div><h3>${L("Let's get set up", "Mari kita mulai")}</h3></div><span class="setup-progress">${done}/${items.length}</span></div>
+          ${items.map(([ok, href, ic, title, sub]) => `<a class="setup-row ${ok ? "done" : ""}" href="${href}" ${href.startsWith("http") ? 'target="_blank" rel="noopener"' : ""}><span class="ic">${ok ? "✓" : ic}</span><div><strong>${title}</strong><span>${sub}</span></div><span class="chev">›</span></a>`).join("")}
+        </div>`;
+    }
+  }
+  render(); RERENDER.push(render);
+}
+
+/* Product page: cover hero, details, by the same author, readers also bought */
+function initProduct() {
+  const root = document.querySelector("[data-product]");
+  if (!root) return;
+  const id = Number(new URLSearchParams(location.search).get("id"));
+  const p = PRODUCTS.find(x => x.id === id);
+  const L = (en, idn) => (LANG === "id" ? idn : en);
+  function render() {
+    if (!p) { root.innerHTML = `<div class="container"><div class="empty"><p>${L("Book not found.", "Buku tidak ditemukan.")}</p><a class="btn btn-dark btn-sm" href="shop.html">${t("Browse the shop ↗")}</a></div></div>`; return; }
+    document.title = `${p.title} — Wonder Bookstore`;
+    const byAuthor = PRODUCTS.filter(x => x.author === p.author && x.id !== p.id).sort((a, b) => b.sold - a.sold).slice(0, 8);
+    const also = PRODUCTS.filter(x => x.category === p.category && x.id !== p.id && x.type === p.type).sort((a, b) => b.sold - a.sold).slice(0, 8);
+    const moods = moodsOf(p);
+    root.innerHTML = `
+      <section class="pdp-hero">
+        <div class="container pdp-top">
+          <a class="pdp-back" href="javascript:history.length>1?history.back():location.assign('shop.html')">← ${L("Back", "Kembali")}</a>
+          <button class="pdp-share" data-share aria-label="Share">↗</button>
+        </div>
+        <div class="container pdp-grid">
+          <div class="pdp-cover">${p.cover ? `<img src="${p.cover}" alt="${p.title}">` : `<div class="pdp-tile" style="background:${colorOf(p)}">${p.title}</div>`}</div>
+          <div class="pdp-info">
+            <div class="cat-row"><a class="cat" href="shop.html?cat=${encodeURIComponent(p.category)}">${t(p.category)}</a>${rankPill(p)}${coverBadge(p)}</div>
+            <h1>${p.title}</h1>
+            <div class="pdp-author">${L("by", "oleh")} <a href="shop.html?q=${encodeURIComponent(p.author)}">${p.author}</a> · ${p.publisher}</div>
+            ${moods.length ? `<div class="moods">${moods.map(k => `<a class="mood" href="shop.html?mood=${k}">${MOOD_LABEL[k][LANG === "id" ? 1 : 0]}</a>`).join("")}</div>` : ""}
+            ${proof(p)}
+            <div class="pdp-price"><span class="price">${money(p.price)}</span>${stockLabel(p)}</div>
+            <div class="pdp-ctas">
+              <button class="btn btn-dark" data-add="${p.id}">${L("Add to bag ↗", "Masukkan ke tas ↗")}</button>
+              <a class="btn btn-ghost" href="checkout.html" data-buy="${p.id}">${L("Buy now · pickup or ship", "Beli sekarang · ambil atau kirim")}</a>
+            </div>
+            <p class="form-note">${L("Free pickup at any of six stores within 2 hours. Shipping free from Rp 350.000.", "Ambil gratis di enam toko dalam 2 jam. Gratis ongkir mulai Rp 350.000.")}</p>
+          </div>
+        </div>
+      </section>
+      <section class="section light" style="padding-top:36px">
+        <div class="container pdp-body">
+          <div class="pdp-tabs"><button class="seg active" data-ptab="about">${L("About", "Tentang")}</button><button class="seg" data-ptab="details">${L("Details", "Detail")}</button><button class="seg" data-ptab="stores">${L("In store", "Di toko")}</button></div>
+          <div class="ptab" data-pane="about">
+            <p>${L("Ask the bookseller for a summary and why readers love it:", "Tanya penjaga toko untuk ringkasan dan alasan pembaca menyukainya:")} <a href="finder.html" style="text-decoration:underline">${L("Ask about this book ↗", "Tanya tentang buku ini ↗")}</a></p>
+            <p class="muted">${L("Publisher descriptions are being added to the catalogue. Until then the store team can tell you about any title on WhatsApp.", "Deskripsi penerbit sedang ditambahkan ke katalog. Sementara itu tim toko bisa menceritakan judul apa pun lewat WhatsApp.")}</p>
+          </div>
+          <div class="ptab" data-pane="details" hidden>
+            <dl class="meta-grid">
+              <div><dt>${t("Publisher")}</dt><dd>${p.publisher}</dd></div>
+              ${p.isbn ? `<div><dt>ISBN</dt><dd>${p.isbn}</dd></div>` : ""}
+              <div><dt>${L("Category", "Kategori")}</dt><dd>${t(p.category)}</dd></div>
+              <div><dt>${L("Language", "Bahasa")}</dt><dd>${L("English", "Inggris")}</dd></div>
+              <div><dt>${L("Sold last month", "Terjual bulan lalu")}</dt><dd>${p.sold}</dd></div>
+              <div><dt>${L("Availability", "Ketersediaan")}</dt><dd>${t(p.inStock ? "In stock" : "On request")}</dd></div>
+            </dl>
+          </div>
+          <div class="ptab" data-pane="stores" hidden>
+            <div class="store-list">${STORES.map(s => `<a class="store-li" href="stores.html#${s.id}"><div><strong>${s.name}</strong><span>${LANG === "id" ? s.areaId : s.area}</span></div><span class="pill ${p.inStock ? "ok" : ""}">${p.inStock ? L("Ask to reserve", "Minta disimpan") : L("Order in", "Pesan")}</span></a>`).join("")}</div>
+            <p class="form-note">${L("Per-store stock arrives with the inventory sync. Pickup orders are confirmed by the store on WhatsApp.", "Stok per toko akan hadir dengan sinkronisasi inventori. Pesanan ambil di toko dikonfirmasi lewat WhatsApp.")}</p>
+          </div>
+        </div>
+      </section>
+      ${byAuthor.length ? rail(L("Other books by", "Buku lain oleh") + " " + p.author, byAuthor, "shop.html?q=" + encodeURIComponent(p.author)) : ""}
+      ${also.length ? rail(L("Readers also bought", "Pembaca juga membeli"), also, "shop.html?cat=" + encodeURIComponent(p.category)) : ""}`;
+    initRails();
+    document.querySelectorAll("[data-rail-wrap]").forEach(w => w.dispatchEvent(new Event("scroll")));
+  }
+  function rail(title, list, href) {
+    return `<section class="section light" style="padding-top:0"><div class="container">
+      <div class="rail-head"><h2 style="font-size:1.6rem">${title}</h2><a class="link" href="${href}">${t("Check all books ↗")}</a></div>
+      <div class="rail-wrap" data-rail-wrap><div class="rail book-grid">${list.map(productCard).join("")}</div>
+      <div class="rail-foot"><div class="progress"><span></span></div><div class="slide-arrows"><button class="arrow-btn" data-prev aria-label="Previous">←</button><button class="arrow-btn" data-next aria-label="Next">→</button></div></div></div>
+    </div></section>`;
+  }
+  root.addEventListener("click", e => {
+    const tb = e.target.closest("[data-ptab]");
+    if (tb) { root.querySelectorAll("[data-ptab]").forEach(b => b.classList.toggle("active", b === tb)); root.querySelectorAll("[data-pane]").forEach(pn => pn.hidden = pn.dataset.pane !== tb.dataset.ptab); return; }
+    if (e.target.closest("[data-buy]")) { if (!Cart.items.find(i => i.id === p.id)) Cart.add(p.id); return; }
+    if (e.target.closest("[data-share]")) {
+      const url = location.href;
+      if (navigator.share) navigator.share({ title: p.title, url }).catch(() => {});
+      else { navigator.clipboard && navigator.clipboard.writeText(url); showToast(L("Link copied", "Tautan disalin")); }
+    }
+  });
+  render(); RERENDER.push(render);
+}
+
+/* Cards link to the product page; shop supports ?mood= */
+document.addEventListener("DOMContentLoaded", () => {
+  initAppShell(); initHomeFeed(); initProduct();
+  document.body.addEventListener("click", e => {
+    if (e.target.closest("button, a, input, select, label")) return;
+    const card = e.target.closest(".book-card, .book-row, .book-tile, .trend");
+    if (!card) return;
+    const add = card.querySelector("[data-add]");
+    if (add) location.href = productUrl({ id: Number(add.dataset.add) });
+  });
+});

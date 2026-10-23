@@ -54,10 +54,23 @@ To tune recommendations, edit the id sets in `TAGS` at the top of `assets/finder
 
 The finder page also has an "Ask the bookseller" chat powered by Claude through a Vercel serverless function (`api/recommend.js`). It recommends only catalogue titles, returns structured picks that are validated against our data, and caches the catalogue prompt. Setup and tuning: `docs/ai-bookseller.md`.
 
+## App-style layer (patterns from Appllama)
+
+Studied screens from Goodreads, Kindle, StoryGraph, Fable, Etsy and Crumbl through the Appllama MCP and adapted the patterns that fit a bookshop:
+
+- Bottom tab bar (Home, Shop, Finder, Club, Bag) and a search row under the header on phones, injected by `initAppShell` in `assets/script.js`
+- Category chip row and a ranked "Top reads this month" rail with large numerals (Kindle)
+- "Popular in …" feed cards per category with the top title, mood chips, proof and quick actions (Goodreads home feed)
+- "Let's get set up" checklist for new visitors: finder, Wonder Club, home store, Instagram (Fable)
+- `product.html?id=`: cover hero, rank and mood chips, price and stock, Add to bag / Buy now, About / Details / In store tabs, "Other books by" and "Readers also bought" rails (Goodreads and Fable book details, Etsy product page)
+- Mood chips on cards and list rows (StoryGraph explore) that filter the shop with `?mood=`; tags live in `assets/tags.js`
+- Every product card, row, tile and trending card opens the product page
+
 ## Pages
 
 - `index.html` — home: ticker, slideshow, bestseller rail, curated shelves, concept, coffee shop, gifts rail, impact number, store grid, FAQ, community, newsletter
-- `shop.html` — catalogue with Books / Gifts / Stationery tabs, category chips, search and sort
+- `shop.html` — catalogue with Books / Gifts / Stationery tabs, category chips, mood filter, search and sort
+- `product.html` — book detail page
 - `stores.html` — all six stores with Google Maps links, plus the contact section
 - `brands.html` — publishers and brands with logos, linking to the shop filtered by brand
 - `about.html` — "A life of wonder": who we are, customers, store timeline, publishers and brands

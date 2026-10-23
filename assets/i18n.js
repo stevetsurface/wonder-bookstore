@@ -219,6 +219,8 @@ window.PAGE_I18N = {
   "Book finder": "Pencari buku", "Book finder ↗": "Pencari buku ↗", "Find your next book in 60 seconds": "Temukan buku berikutnya dalam 60 detik",
   "Five quick questions, real picks from the shelves, and a reading personality to share with friends.": "Lima pertanyaan singkat, pilihan nyata dari rak, dan kepribadian membaca untuk dibagikan ke teman.",
   "Start the finder ↗": "Mulai pencari ↗",
+  "TITLE:Book — Wonder Bookstore": "Buku — Wonder Bookstore",
+  "Six stores, one list": "Enam toko, satu daftar", "Top reads this month": "Bacaan teratas bulan ini", "All bestsellers ↗": "Semua terlaris ↗",
   /* trending strip */
   "Trending in store": "Sedang ramai di toko", "Most bought this week across six stores": "Paling banyak dibeli minggu ini di enam toko",
   "Bestsellers": "Terlaris", "Staff picks": "Pilihan staf", "New arrivals": "Baru datang"
