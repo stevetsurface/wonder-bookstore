@@ -114,7 +114,8 @@ Then open http://localhost:8080.
 - **Book prices and sales** are real (Sinar Starbooks catalogue, April units). **Gift and stationery prices** are still placeholders.
 - **Opening hours** are written as "open daily during mall hours"; replace with real hours per store.
 - **Google Maps links** are search links by store name; swap for the exact place links from the deck.
-- **WhatsApp numbers** per store are not on the site yet; add them in the contact section of `stores.html`.
+- **WhatsApp numbers** per store are not on the site yet; add them in the contact section of `stores.html`. The footer WhatsApp icon links to that section until then.
+- **Threads and LinkedIn** footer links assume the handle `@wonderbookstoreofficial` on Threads and a LinkedIn company page at `linkedin.com/company/wonder-bookstore`; confirm or edit them in `SOCIALS` at the end of `assets/script.js`.
 - **Checkout, orders and Wonder Club** are front-end demos in the browser. Points are credited immediately in the demo; in production they are credited after payment.
 - **Shipping rates and delivery times** are estimates until a rate API is connected.
 - **Journal event dates** are approximate; confirm them with the team. Event photos come from the proposal deck.

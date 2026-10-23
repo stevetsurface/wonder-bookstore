@@ -971,3 +971,38 @@ body.cart-open .drawer-backdrop { opacity: 1; pointer-events: auto; }
 .shop-layout > div { min-width: 0; }
 .segs { flex-wrap: wrap; }
 @media (max-width: 680px) { .shop-top { align-items: flex-start; } .segs { border-radius: 16px; } }
+
+/* ===== Readability: no white text directly on photos ===== */
+@media (min-width: 861px) {
+  .slideshow > .slide { display: block !important; background: var(--green); }
+  .slideshow .slide-grid { position: static; display: grid; grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: 100%; min-height: 0; padding: 0; background: none; justify-content: stretch; }
+  .slideshow .slide .photo { position: static; order: -1; aspect-ratio: 16 / 8; border-radius: 0; inset: auto; }
+  .slideshow .slide-grid > div:first-child { padding: 18px 24px 22px; display: flex; flex-direction: column; justify-content: center; }
+  .slideshow > .slide:first-child .slide-grid { grid-template-columns: 0.95fr 1.25fr; grid-template-rows: 1fr; }
+  .slideshow > .slide:first-child .photo { order: 2; aspect-ratio: auto; height: 100%; }
+  .slideshow > .slide:first-child .slide-grid > div:first-child { padding: 40px 36px; }
+  .slideshow > .slide:first-child h1 { font-size: clamp(2rem, 3.4vw, 3.2rem); }
+  .slideshow > .slide:not(:first-child) h1 { font-size: 1.5rem; margin-bottom: 8px; }
+  .slideshow > .slide:not(:first-child) .hero-actions { margin-top: 6px; }
+  .slideshow > .slide:not(:first-child) .hero-actions .btn { padding: 9px 16px; font-size: 0.78rem; }
+}
+/* Category tiles and shelf stories: label bar on solid green instead of a gradient over the photo */
+.world { aspect-ratio: auto; display: flex; flex-direction: column; }
+.world img { aspect-ratio: 3 / 3.1; flex: none; }
+.world::after { display: none; }
+.world .txt { position: static; padding: 12px 14px 14px; background: var(--green); flex: 1; }
+.story { aspect-ratio: auto; display: flex; flex-direction: column; }
+.story img { aspect-ratio: 4 / 2.6; flex: none; }
+.story::after { display: none; }
+.story .txt { position: static; padding: 16px 20px 18px; background: var(--green); flex: 1; }
+.story .arrow { background: var(--green); width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-size: 1rem; top: 12px; right: 12px; }
+/* Photo captions and corner arrows: solid pills */
+.photo .cap { background: rgba(15,45,36,.9); padding: 5px 11px; border-radius: 999px; text-shadow: none; left: 12px; bottom: 12px; }
+.photo .corner { background: rgba(15,45,36,.9); width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-size: 1rem; text-shadow: none; }
+.mega-feature span { background: rgba(15,45,36,.92); padding: 8px 12px; border-radius: 8px; left: 10px; right: 10px; bottom: 10px; text-shadow: none; }
+.mega-feature img { opacity: 1; }
+.post-img .post-type { box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+.world img, .story img { height: auto; }
+/* Social icons */
+.socials a { width: 40px; height: 40px; }
+.socials svg { width: 18px; height: 18px; fill: currentColor; display: block; }
