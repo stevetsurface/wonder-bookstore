@@ -1246,3 +1246,101 @@ document.addEventListener("DOMContentLoaded", () => {
     box.innerHTML = SOCIALS.map(([name, href, svg]) => `<a href="${href}" ${href.startsWith("http") ? 'target="_blank" rel="noopener"' : ""} aria-label="${name}" title="${name}">${svg}</a>`).join("");
   });
 });
+
+/* =====================================================================
+   Open Library enrichment (synopsis, pages, rating) + Goodreads link on the book page
+   ===================================================================== */
+const OL_CACHE_KEY = "wonder-ol-v1";
+function olCache() { try { return JSON.parse(localStorage.getItem(OL_CACHE_KEY)) || {}; } catch { return {}; } }
+async function olFetch(url) { const r = await fetch(url, { headers: { Accept: "application/json" } }); if (!r.ok) throw new Error(r.status); return r.json(); }
+async function openLibrary(isbn) {
+  const cache = olCache();
+  const hit = cache[isbn];
+  if (hit && Date.now() - hit.at < 7 * 24 * 3600 * 1000) return hit.data;
+  const out = { description: "", pages: null, published: "", subjects: [], rating: null, ratings: 0, workKey: "" };
+  try {
+    const ed = await olFetch(`https://openlibrary.org/isbn/${isbn}.json`);
+    out.pages = ed.number_of_pages || null; out.published = ed.publish_date || "";
+    const d = ed.description; if (d) out.description = typeof d === "string" ? d : d.value || "";
+    const work = ed.works && ed.works[0] && ed.works[0].key;
+    if (work) {
+      out.workKey = work;
+      const [w, r] = await Promise.all([olFetch(`https://openlibrary.org${work}.json`).catch(() => null), olFetch(`https://openlibrary.org${work}/ratings.json`).catch(() => null)]);
+      if (w) { if (!out.description && w.description) out.description = typeof w.description === "string" ? w.description : w.description.value || ""; out.subjects = (w.subjects || []).slice(0, 6); }
+      if (r && r.summary && r.summary.count) { out.rating = Math.round(r.summary.average * 10) / 10; out.ratings = r.summary.count; }
+    }
+  } catch (e) { /* leave defaults */ }
+  cache[isbn] = { at: Date.now(), data: out };
+  try { localStorage.setItem(OL_CACHE_KEY, JSON.stringify(cache)); } catch {}
+  return out;
+}
+function cleanDescription(s) {
+  return String(s).replace(/\r/g, "").replace(/\[([^\]]+)\]\([^)]*\)/g, "$1").replace(/[*_]{1,2}([^*_]+)[*_]{1,2}/g, "$1").replace(/^-{3,}[\s\S]*$/m, "").replace(/\(\[source\]\[\d+\]\)/g, "").replace(/\s*\[\d+\]:\s*\S+/g, "").trim();
+}
+async function enrichProduct(p) {
+  const about = document.querySelector('[data-pane="about"]');
+  const details = document.querySelector('[data-pane="details"] .meta-grid');
+  if (!about || !p) return;
+  const L = (en, id) => (LANG === "id" ? id : en);
+  const gr = p.isbn ? `https://www.goodreads.com/search?q=${p.isbn}` : `https://www.goodreads.com/search?q=${encodeURIComponent(p.title + " " + p.author)}`;
+  const grLink = `<p class="form-note" style="margin-top:14px"><a href="${gr}" target="_blank" rel="nofollow noopener" data-track="goodreads">${L("Reviews on Goodreads ↗", "Ulasan di Goodreads ↗")}</a></p>`;
+  if (!p.isbn || p.type !== "Books") { about.insertAdjacentHTML("beforeend", grLink); return; }
+  about.insertAdjacentHTML("afterbegin", `<p class="muted" data-ol-loading style="font-size:.9rem">${L("Loading description…", "Memuat deskripsi…")}</p>`);
+  const ol = await openLibrary(p.isbn);
+  const loading = about.querySelector("[data-ol-loading]"); if (loading) loading.remove();
+  const desc = cleanDescription(ol.description || "");
+  if (desc) {
+    const short = desc.length > 900 ? desc.slice(0, 900).replace(/\s+\S*$/, "") + "…" : desc;
+    about.innerHTML = `
+      ${ol.rating ? `<div class="ol-rating"><span class="stars">${"★".repeat(Math.round(ol.rating))}${"☆".repeat(5 - Math.round(ol.rating))}</span> <strong>${ol.rating}</strong> <span class="muted">· ${ol.ratings.toLocaleString(LANG === "id" ? "id-ID" : "en-US")} ${L("ratings on Open Library", "penilaian di Open Library")}</span></div>` : ""}
+      <div class="ol-desc" data-full="${encodeURIComponent(desc)}"><p>${short.replace(/\n{2,}/g, "</p><p>").replace(/\n/g, "<br>")}</p>${desc.length > 900 ? `<button class="btn btn-dark btn-sm" data-ol-more>${L("Read more", "Baca selengkapnya")}</button>` : ""}</div>
+      ${ol.subjects.length ? `<div class="moods" style="margin-top:14px">${ol.subjects.map(s => `<a class="mood" href="shop.html?q=${encodeURIComponent(s)}">${s}</a>`).join("")}</div>` : ""}
+      <p class="form-note">${L("Description and rating from Open Library.", "Deskripsi dan penilaian dari Open Library.")}</p>
+      ${grLink}`;
+  } else {
+    about.insertAdjacentHTML("beforeend", grLink);
+  }
+  if (details) {
+    if (ol.pages) details.insertAdjacentHTML("beforeend", `<div><dt>${L("Pages", "Halaman")}</dt><dd>${ol.pages}</dd></div>`);
+    if (ol.published) details.insertAdjacentHTML("beforeend", `<div><dt>${L("Published", "Terbit")}</dt><dd>${ol.published}</dd></div>`);
+  }
+}
+document.addEventListener("DOMContentLoaded", () => {
+  const root = document.querySelector("[data-product]");
+  if (!root) return;
+  const id = Number(new URLSearchParams(location.search).get("id"));
+  const p = PRODUCTS.find(x => x.id === id);
+  const run = () => enrichProduct(p);
+  setTimeout(run, 0);
+  RERENDER.push(() => setTimeout(run, 0));
+  root.addEventListener("click", e => {
+    const more = e.target.closest("[data-ol-more]");
+    if (more) { const box = more.closest(".ol-desc"); const full = decodeURIComponent(box.dataset.full); box.innerHTML = `<p>${full.replace(/\n{2,}/g, "</p><p>").replace(/\n/g, "<br>")}</p>`; return; }
+    const tr = e.target.closest("[data-track]");
+    if (tr && window.dataLayer) window.dataLayer.push({ event: "outbound_" + tr.dataset.track, id });
+  });
+});
+
+/* Fallback covers from Open Library for titles without a local cover file */
+document.addEventListener("DOMContentLoaded", () => {
+  const fix = () => {
+    document.querySelectorAll(".cover:not(.has-img):not([data-ol-tried]), .pdp-tile:not([data-ol-tried]), .thumb:not(.has-img):not([data-ol-tried])").forEach(el => {
+      el.dataset.olTried = "1";
+      const addBtn = el.querySelector("[data-add]") || el.closest(".book-card, .book-row, .book-tile, .trend, .pdp-hero")?.querySelector("[data-add]");
+      const id = addBtn ? Number(addBtn.dataset.add) : Number(new URLSearchParams(location.search).get("id"));
+      const p = PRODUCTS.find(x => x.id === id);
+      if (!p || !p.isbn || p.type !== "Books") return;
+      const img = new Image();
+      img.onload = () => {
+        if (img.naturalWidth < 50) return;
+        if (el.classList.contains("pdp-tile")) { const wrap = el.parentElement; wrap.innerHTML = `<img src="${img.src}" alt="${p.title}">`; return; }
+        el.classList.add("has-img"); el.style.background = "";
+        const keep = el.querySelector(".badge, .quick-add") ? [...el.querySelectorAll(".badge, .quick-add")].map(n => n.outerHTML).join("") : "";
+        el.innerHTML = `<img src="${img.src}" alt="${p.title}" loading="lazy">${keep}`;
+      };
+      img.src = `https://covers.openlibrary.org/b/isbn/${p.isbn}-M.jpg?default=false`;
+    });
+  };
+  fix(); RERENDER.push(fix);
+  new MutationObserver(() => fix()).observe(document.body, { childList: true, subtree: true });
+});

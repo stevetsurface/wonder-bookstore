@@ -78,6 +78,10 @@ Desktop patterns adapted from Mobbin web references:
 - Wonder Club rewards as tier tabs Reader / Bookworm / Wonderer with an arrow list of perks (FARFETCH, re_)
 - Stores as a photo card grid with directions buttons (Slack offices, SOTF)
 
+## Book page enrichment (Open Library + Goodreads)
+
+On `product.html`, titles with an ISBN fetch their description, page count, publish date, subjects and community rating from Open Library in the browser (cached locally for a week). Titles without a local cover file try the Open Library cover by ISBN. Every book page also has a small "Reviews on Goodreads" text link (by ISBN, `rel="nofollow noopener"`, tracked as `outbound_goodreads`); it is deliberately low-key because Goodreads pages sell through Amazon.
+
 ## Pages
 
 - `index.html` — home: ticker, slideshow, bestseller rail, curated shelves, concept, coffee shop, gifts rail, impact number, store grid, FAQ, community, newsletter

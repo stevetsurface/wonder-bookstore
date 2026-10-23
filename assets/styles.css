@@ -1006,3 +1006,6 @@ body.cart-open .drawer-backdrop { opacity: 1; pointer-events: auto; }
 /* Social icons */
 .socials a { width: 40px; height: 40px; }
 .socials svg { width: 18px; height: 18px; fill: currentColor; display: block; }
+.ol-rating { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 0.95rem; }
+.ol-rating .stars { color: var(--wood); letter-spacing: .05em; }
+.ol-desc p { font-size: 1.02rem; line-height: 1.7; }
