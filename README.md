@@ -66,6 +66,18 @@ Studied screens from Goodreads, Kindle, StoryGraph, Fable, Etsy and Crumbl throu
 - Mood chips on cards and list rows (StoryGraph explore) that filter the shop with `?mood=`; tags live in `assets/tags.js`
 - Every product card, row, tile and trending card opens the product page
 
+## Web layout (patterns from Mobbin)
+
+Desktop patterns adapted from Mobbin web references:
+
+- Three-tier header like Etsy: promo ticker, logo with a large centred search, then a category row (Bestsellers, Fiction, Self-development, Children, Comics & manga, Business, Gifts, Stationery, Brands, Book finder, Journal, Stores), injected by `initCatNav`
+- Editorial hero tiles (Etsy, Adidas): one large tile and two stacked tiles, built from the same three slides that still rotate on phones
+- Book cards with the cover centred on a soft card and a pill Buy button (Julienne)
+- Shop page with a sticky filter sidebar (In Common With, Klarna): collections, categories and brands with counts, mood chips, kids' age bands; chips and tabs remain on phones
+- Book page on a light background with cover, tags, metadata and an action row (Literal)
+- Wonder Club rewards as tier tabs Reader / Bookworm / Wonderer with an arrow list of perks (FARFETCH, re_)
+- Stores as a photo card grid with directions buttons (Slack offices, SOTF)
+
 ## Pages
 
 - `index.html` — home: ticker, slideshow, bestseller rail, curated shelves, concept, coffee shop, gifts rail, impact number, store grid, FAQ, community, newsletter

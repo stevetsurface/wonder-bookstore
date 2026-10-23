@@ -320,6 +320,8 @@ function initShop() {
       case "title": list.sort((a, b) => a.title.localeCompare(b.title)); break;
       default: list.sort((a, b) => (BEST_RANK[a.id] || 99) - (BEST_RANK[b.id] || 99) || (b.pick ? 1 : 0) - (a.pick ? 1 : 0) || b.sold - a.sold);
     }
+    const titleEl = document.querySelector("[data-shop-title]");
+    if (titleEl) titleEl.innerHTML = `${collection === "best" ? t("Bestsellers") : collection === "picks" ? t("Store favourites") : collection === "stock" ? t("In stock") : category !== "All" ? t(category) : type !== "All" ? t(type) : brand !== "All" ? brand : mood && MOOD_LABEL[mood] ? MOOD_LABEL[mood][LANG === "id" ? 1 : 0] : (LANG === "id" ? "Semua produk" : "All products")}<small>${list.length} ${t(list.length === 1 ? "item" : "items")}</small>`;
     count.textContent = `${list.length} ${t(list.length === 1 ? "item" : "items")}` + (type !== "All" ? ` · ${t(type)}` : "") + (category !== "All" ? ` · ${t(category)}` : "") + (mood && MOOD_LABEL[mood] ? ` · ${MOOD_LABEL[mood][LANG === "id" ? 1 : 0]}` : "");
     grid.className = view === "list" ? "book-list" : view === "compact" ? "book-compact" : "book-grid";
     const fn = view === "list" ? productRow : view === "compact" ? productTile : productCard;
@@ -788,15 +790,23 @@ function initAccount() {
       </div>`;
   }
   function benefits() {
-    return `<div class="co-summary">
-      <h3>${L("Member benefits", "Keuntungan anggota")}</h3>
-      <ul class="feature-list light-list">
-        <li><span class="n">01</span><div><strong>1 ${L("point per", "poin per")} ${money(CLUB.earnPer)}</strong><span>${CLUB.redeemPoints} ${L("points", "poin")} = ${money(CLUB.redeemValue)} ${L("off any order.", "potongan untuk pesanan apa pun.")}</span></div></li>
-        <li><span class="n">02</span><div><strong>${L("Birthday month", "Bulan ulang tahun")} ${CLUB.birthdayPct}%</strong><span>${L("Off one order in your birthday month.", "Diskon satu pesanan di bulan ulang tahun Anda.")}</span></div></li>
-        <li><span class="n">03</span><div><strong>${L("Tiers", "Tingkatan")}</strong><span>${CLUB.tiers.map(x => x[0]).join(" → ")} · ${L("by yearly spend.", "berdasarkan belanja tahunan.")}</span></div></li>
-        <li><span class="n">04</span><div><strong>${L("Events first", "Acara lebih dulu")}</strong><span>${L("Early invites to launches, book clubs and kids' activities.", "Undangan lebih awal untuk peluncuran, klub buku, dan aktivitas anak.")}</span></div></li>
-      </ul>
-      <p class="form-note">${L("Programme rules are a draft for the store team to confirm.", "Aturan program masih draf untuk dikonfirmasi tim toko.")}</p>
+    const m = Member.get();
+    const cur = m ? Member.tier(m)[0] : CLUB.tiers[0][0];
+    const perks = {
+      Reader: [[L("Points on every purchase", "Poin dari setiap pembelian"), `1 ${L("point per", "poin per")} ${money(CLUB.earnPer)} · ${CLUB.redeemPoints} ${L("points", "poin")} = ${money(CLUB.redeemValue)}`], [L("Birthday month", "Bulan ulang tahun"), `${CLUB.birthdayPct}% ${L("off one order", "untuk satu pesanan")}`], [L("Events", "Acara"), L("Invitations to launches and kids' activities", "Undangan peluncuran dan aktivitas anak")]],
+      Bookworm: [[L("Everything in Reader", "Semua di Reader"), ""], [L("Early access", "Akses lebih awal"), L("New arrivals and pre-orders 48 hours early", "Judul baru dan pre-order 48 jam lebih awal")], [L("Member events", "Acara anggota"), L("Priority seats at book clubs and launches", "Kursi prioritas di klub buku dan peluncuran")]],
+      Wonderer: [[L("Everything in Bookworm", "Semua di Bookworm"), ""], [L("Personal bookseller", "Penjaga toko pribadi"), L("WhatsApp line to a store bookseller", "Jalur WhatsApp ke penjaga toko")], [L("Private previews", "Pratinjau privat"), L("First look at collaborations and signed editions", "Lihat lebih dulu kolaborasi dan edisi bertanda tangan")]]
+    };
+    return `<div class="co-summary tiers">
+      <h3>${L("Your rewards", "Hadiah Anda")}</h3>
+      <p class="muted" style="font-size:.9rem">${L("Three tiers by yearly spend. Rules are a draft for the store team to confirm.", "Tiga tingkat berdasarkan belanja tahunan. Aturan masih draf untuk dikonfirmasi tim toko.")}</p>
+      <div class="tier-tabs">${CLUB.tiers.map(([name]) => `<button class="${name === cur ? "active" : ""}" data-tier="${name}">${name}</button>`).join("")}</div>
+      ${CLUB.tiers.map(([name, min]) => `
+        <div class="tier-pane" data-tier-pane="${name}" ${name === cur ? "" : "hidden"}>
+          <div class="tier-req">${min ? L("From", "Mulai") + " " + money(min) + " " + L("a year", "per tahun") : L("Free to join", "Gratis bergabung")}</div>
+          <ul class="arrow-list">${perks[name].map(([h, d]) => `<li><strong>→ ${h}</strong>${d ? `<span>${d}</span>` : ""}</li>`).join("")}</ul>
+        </div>`).join("")}
+      ${m ? "" : `<a class="btn btn-dark btn-sm" href="#join" style="margin-top:6px">${L("Register or sign in →", "Daftar atau masuk →")}</a>`}
     </div>`;
   }
   root.addEventListener("submit", e => {
@@ -807,7 +817,11 @@ function initAccount() {
     showToast(LANG === "id" ? "Selamat datang di Wonder Club!" : "Welcome to Wonder Club!");
     render(); renderHeaderMember();
   });
-  root.addEventListener("click", e => { if (e.target.closest("[data-signout]")) { Member.clear(); render(); renderHeaderMember(); } });
+  root.addEventListener("click", e => {
+    if (e.target.closest("[data-signout]")) { Member.clear(); render(); renderHeaderMember(); return; }
+    const tb = e.target.closest("[data-tier]");
+    if (tb) { root.querySelectorAll("[data-tier]").forEach(b => b.classList.toggle("active", b === tb)); root.querySelectorAll("[data-tier-pane]").forEach(pn => pn.hidden = pn.dataset.tierPane !== tb.dataset.tier); }
+  });
   render();
   RERENDER.push(render);
 }
@@ -1149,3 +1163,73 @@ document.addEventListener("DOMContentLoaded", () => {
     if (add) location.href = productUrl({ id: Number(add.dataset.add) });
   });
 });
+
+/* =====================================================================
+   Web redesign (Mobbin patterns): category nav row, shop filter sidebar, club tier tabs
+   ===================================================================== */
+function initCatNav() {
+  const header = document.querySelector(".site-header");
+  if (!header || document.querySelector(".catnav")) return;
+  const L = (en, id) => (LANG === "id" ? id : en);
+  const path = location.pathname.split("/").pop() || "index.html";
+  const items = [
+    ["shop.html?col=best", L("Bestsellers", "Terlaris")], ["shop.html?cat=Fiction", t("Fiction")], ["shop.html?cat=Self-Development", L("Self-development", "Pengembangan diri")],
+    ["shop.html?cat=Children", L("Children", "Anak")], ["shop.html?cat=Comics+%26+Manga", L("Comics & manga", "Komik & manga")], ["shop.html?cat=Business", t("Business")],
+    ["shop.html?type=Gifts", L("Gifts", "Hadiah")], ["shop.html?type=Stationery", L("Stationery", "Alat tulis")], ["brands.html", L("Brands", "Brand")],
+    ["finder.html", L("Book finder", "Pencari buku")], ["journal.html", L("Journal", "Jurnal")], ["stores.html", L("Stores", "Toko")]
+  ];
+  const nav = document.createElement("nav");
+  nav.className = "catnav"; nav.setAttribute("aria-label", "Categories");
+  const render = () => { nav.innerHTML = `<div class="container">${items.map(([href, label]) => `<a href="${href}" class="${href.split("?")[0] === path && (href.includes("?") ? location.search.includes(href.split("?")[1].split("=")[1].slice(0, 4)) : true) ? "active" : ""}">${label}</a>`).join("")}</div>`; };
+  render();
+  const ms = document.querySelector(".msearch");
+  (ms || header).insertAdjacentElement("afterend", nav);
+  RERENDER.push(render);
+}
+
+/* Filter sidebar for the shop page (desktop) */
+function initShopFilters() {
+  const side = document.querySelector("[data-filters]");
+  if (!side) return;
+  const L = (en, id) => (LANG === "id" ? id : en);
+  function render() {
+    const params = new URLSearchParams(location.search);
+    const cur = { type: params.get("type") || "All", cat: params.get("cat") || "All", brand: params.get("brand") || "All", mood: params.get("mood") || "", col: params.get("col") || "all" };
+    const count = (fn) => PRODUCTS.filter(fn).length;
+    const cats = {}; PRODUCTS.filter(p => p.type === "Books").forEach(p => cats[p.category] = (cats[p.category] || 0) + 1);
+    const brands = {}; PRODUCTS.forEach(p => brands[p.brand] = (brands[p.brand] || 0) + 1);
+    const link = (q, label, n, on) => `<a class="f-item ${on ? "on" : ""}" href="shop.html${q}">${label}${n !== undefined ? `<span>${n}</span>` : ""}</a>`;
+    side.innerHTML = `
+      <div class="f-group">
+        <h4>${L("Shop", "Belanja")}</h4>
+        ${link("", L("All products", "Semua produk"), PRODUCTS.length, cur.type === "All" && cur.cat === "All" && cur.col === "all" && !cur.mood && cur.brand === "All")}
+        ${link("?col=best", L("Bestsellers", "Terlaris"), TOP_N, cur.col === "best")}
+        ${link("?col=picks", t("Store favourites"), count(p => p.pick), cur.col === "picks")}
+        ${link("?col=stock", t("In stock"), count(p => p.inStock), cur.col === "stock")}
+      </div>
+      <div class="f-group">
+        <h4>${L("Books", "Buku")}</h4>
+        ${Object.entries(cats).sort((a, b) => b[1] - a[1]).map(([c, n]) => link("?cat=" + encodeURIComponent(c), t(c), n, cur.cat === c)).join("")}
+      </div>
+      <div class="f-group">
+        <h4>${L("Gifts & stationery", "Hadiah & alat tulis")}</h4>
+        ${link("?type=Gifts", t("Gifts"), count(p => p.type === "Gifts"), cur.type === "Gifts")}
+        ${link("?type=Stationery", t("Stationery"), count(p => p.type === "Stationery"), cur.type === "Stationery")}
+      </div>
+      <div class="f-group">
+        <h4>${L("Mood", "Suasana")}</h4>
+        <div class="f-chips">${Object.keys(MOOD_LABEL).filter(k => !/^kid|teen/.test(k)).map(k => `<a class="mood ${cur.mood === k ? "on" : ""}" href="shop.html?mood=${k}">${MOOD_LABEL[k][LANG === "id" ? 1 : 0]}</a>`).join("")}</div>
+      </div>
+      <div class="f-group">
+        <h4>${L("For kids", "Untuk anak")}</h4>
+        <div class="f-chips">${["kid0", "kid5", "kid9", "teen"].map(k => `<a class="mood ${cur.mood === k ? "on" : ""}" href="shop.html?mood=${k}">${MOOD_LABEL[k][LANG === "id" ? 1 : 0]}</a>`).join("")}</div>
+      </div>
+      <div class="f-group">
+        <h4>${L("Brands", "Brand")}</h4>
+        ${Object.entries(brands).sort((a, b) => b[1] - a[1]).slice(0, 9).map(([b, n]) => link("?brand=" + encodeURIComponent(b), b, n, cur.brand === b)).join("")}
+        <a class="f-item" href="brands.html">${L("All brands", "Semua brand")} ↗</a>
+      </div>`;
+  }
+  render(); RERENDER.push(render);
+}
+document.addEventListener("DOMContentLoaded", () => { initCatNav(); initShopFilters(); });
