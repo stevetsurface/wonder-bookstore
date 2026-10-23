@@ -94,6 +94,10 @@ Desktop patterns adapted from Mobbin web references:
 - `assets/logo-mark.svg` — the circular "W" mark, drawn from the storefront sign
 - `assets/img/` — store and lifestyle photos cropped from the proposal deck
 
+## Deploying changes
+
+Run `node tools/bump-assets.mjs` before committing: it stamps every CSS and JS link with a version so browsers and GitHub Pages stop serving the previous files after a deploy.
+
 ## Run locally
 
 ```bash
