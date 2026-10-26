@@ -1176,7 +1176,7 @@ function initCatNav() {
     ["shop.html?col=best", L("Bestsellers", "Terlaris")], ["shop.html?cat=Fiction", t("Fiction")], ["shop.html?cat=Self-Development", L("Self-development", "Pengembangan diri")],
     ["shop.html?cat=Children", L("Children", "Anak")], ["shop.html?cat=Comics+%26+Manga", L("Comics & manga", "Komik & manga")], ["shop.html?cat=Business", t("Business")],
     ["shop.html?type=Gifts", L("Gifts", "Hadiah")], ["shop.html?type=Stationery", L("Stationery", "Alat tulis")], ["brands.html", L("Brands", "Brand")],
-    ["finder.html", L("Book finder", "Pencari buku")], ["journal.html", L("Journal", "Jurnal")], ["stores.html", L("Stores", "Toko")]
+    ["finder.html", L("Book finder", "Pencari buku")], ["scout.html", "Booky Scout"], ["journal.html", L("Journal", "Jurnal")], ["stores.html", L("Stores", "Toko")]
   ];
   const nav = document.createElement("nav");
   nav.className = "catnav"; nav.setAttribute("aria-label", "Categories");

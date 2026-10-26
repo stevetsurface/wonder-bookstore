@@ -82,6 +82,12 @@ Desktop patterns adapted from Mobbin web references:
 
 On `product.html`, titles with an ISBN fetch their description, page count, publish date, subjects and community rating from Open Library in the browser (cached locally for a week). Titles without a local cover file try the Open Library cover by ISBN. Every book page also has a small "Reviews on Goodreads" text link (by ISBN, `rel="nofollow noopener"`, tracked as `outbound_goodreads`); it is deliberately low-key because Goodreads pages sell through Amazon.
 
+## Booky Scout
+
+`scout.html` is the public edition of the merchandising team's Bestsellers Compass (spec in the Sinar Starbooks project): a weekly scouting report on what is moving in English-language books. It defines the tool, shows the current issue (rows grouped by the six buy-signal rules with sources, an action and a one-line why, plus movers in our stores and the evergreen list), explains the method step by step, and has a subscribe form with a reader / reseller / school choice and a link to the reseller portal. Share on WhatsApp, copy link, and a print stylesheet for PDF.
+
+Issues live in `assets/scout.js` (`SCOUT_ISSUES`). The first issue is marked as a sample: our-store numbers are real April unit sales, while international and local signal rows are examples of the format until the Monday Compass run feeds them. To publish a real issue, add an object with `week`, `number`, `rows` (catalogue `id` or title/author/publisher, `rule` 1-6, `action`, `intl`, `local`, `why` in EN and ID) and remove `sample: true`.
+
 ## Pages
 
 - `index.html` — home: ticker, slideshow, bestseller rail, curated shelves, concept, coffee shop, gifts rail, impact number, store grid, FAQ, community, newsletter

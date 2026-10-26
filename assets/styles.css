@@ -1009,3 +1009,60 @@ body.cart-open .drawer-backdrop { opacity: 1; pointer-events: auto; }
 .ol-rating { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 0.95rem; }
 .ol-rating .stars { color: var(--wood); letter-spacing: .05em; }
 .ol-desc p { font-size: 1.02rem; line-height: 1.7; }
+
+/* ===== Booky Scout ===== */
+.sc-define { display: grid; grid-template-columns: 1.3fr 0.9fr; gap: 40px; align-items: start; }
+.sc-define p { font-size: 1.02rem; }
+.sc-pillars { display: grid; gap: 10px; }
+.sc-pillars div { background: var(--white); border: 1px solid var(--line-light); border-radius: 12px; padding: 16px 18px; }
+.sc-pillars strong { display: block; font-family: var(--font-display); text-transform: uppercase; letter-spacing: .04em; font-size: 0.9rem; margin-bottom: 4px; }
+.sc-pillars span { font-size: 0.9rem; color: var(--ink-soft); }
+.sc-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; margin-bottom: 20px; }
+.sc-head h2 { font-size: clamp(1.8rem, 3.6vw, 2.8rem); margin: 6px 0 8px; }
+.sc-share { display: flex; gap: 8px; flex-wrap: wrap; }
+.sc-ex { font-style: normal; font-family: var(--font-display); text-transform: uppercase; letter-spacing: .08em; font-size: 0.62rem; color: #9a3412; background: #fde9c4; padding: 2px 8px; border-radius: 999px; }
+.sc-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
+.sc-summary div { background: var(--green); color: var(--white); border-radius: 12px; padding: 16px 18px; }
+.sc-summary strong { display: block; font-family: var(--font-display); font-size: 2rem; line-height: 1; }
+.sc-summary span { font-size: 0.78rem; opacity: .8; }
+.sc-group { background: var(--white); border: 1px solid var(--line-light); border-radius: 16px; padding: 20px 22px; margin-bottom: 16px; }
+.sc-group-head { display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: center; margin-bottom: 8px; }
+.sc-group-head h3 { margin: 0 0 2px; font-size: 1.15rem; }
+.sc-group-head p { margin: 0; font-size: 0.85rem; }
+.sc-rule { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .06em; font-size: 0.68rem; color: var(--ink-soft); }
+.sc-rule.big { width: 44px; height: 44px; border-radius: 50%; background: var(--green); color: var(--white); display: grid; place-items: center; font-size: 1.1rem; letter-spacing: 0; }
+.sc-row { display: grid; grid-template-columns: 56px 1fr 170px; gap: 16px; padding: 14px 0; border-top: 1px solid var(--line-light); align-items: start; }
+.sc-cover img, .sc-tile { width: 56px; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 4px; display: block; box-shadow: 0 4px 12px rgba(0,0,0,.18); }
+.sc-tile { color: var(--white); font-family: var(--font-display); text-transform: uppercase; font-size: 0.5rem; padding: 5px; display: flex; align-items: flex-end; }
+.sc-title { font-weight: 600; font-size: 1rem; }
+.sc-title a:hover { text-decoration: underline; }
+.sc-sub { font-size: 0.82rem; color: var(--ink-soft); margin: 2px 0 6px; }
+.sc-sigs { display: flex; flex-wrap: wrap; gap: 5px; }
+.sig { font-size: 0.68rem; font-weight: 600; padding: 3px 8px; border-radius: 999px; border: 1px solid transparent; }
+.sig.intl { background: #e8eef7; color: #1f3b73; }
+.sig.local { background: #e7f3ec; color: var(--green); }
+.sig.ever { background: #fde9c4; color: #6b4a00; }
+.sc-why { margin: 8px 0 0; font-size: 0.9rem; color: var(--ink); }
+.sc-side { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.sc-action { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .06em; font-size: 0.7rem; padding: 6px 10px; border-radius: 999px; color: var(--white); background: var(--ink-soft); }
+.a-deep { background: var(--green); } .a-reorder { background: #9a3412; } .a-investigate { background: #1f3b73; } .a-soft { background: var(--green-3); } .a-monitor { background: var(--ink-soft); } .a-display { background: #6b4fa0; }
+.sc-own { font-size: 0.75rem; color: var(--ink-soft); }
+.sc-movers { display: flex; gap: 14px; overflow-x: auto; scrollbar-width: none; padding: 6px 0; }
+.sc-mover { flex: 0 0 120px; }
+.sc-mover img, .sc-mover .sc-tile { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 6px; box-shadow: 0 6px 16px rgba(0,0,0,.18); display: block; font-size: 0.7rem; }
+.sc-mover strong { display: block; font-size: 0.8rem; margin-top: 8px; line-height: 1.25; }
+.sc-mover span { font-size: 0.72rem; color: var(--ink-soft); }
+.sc-sources h3 { font-size: 1.1rem; margin-bottom: 10px; }
+.sc-src { display: grid; grid-template-columns: 120px 1fr; gap: 12px; padding: 8px 0; border-top: 1px solid var(--line-light); font-size: 0.85rem; }
+.sc-src strong { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .06em; font-size: 0.7rem; color: var(--ink-soft); padding-top: 3px; }
+.sc-steps { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.sc-step { background: rgba(255,255,255,.06); border: 1px solid var(--line-dark); border-radius: 14px; padding: 22px 24px; }
+.sc-step .n { font-family: var(--font-display); color: var(--wood); font-size: 0.8rem; letter-spacing: .1em; }
+.sc-step h3 { color: var(--white); margin: 6px 0 8px; font-size: 1.15rem; }
+.sc-step p { color: rgba(255,255,255,.78); margin: 0; font-size: 0.95rem; }
+.sc-rules { margin: 0; padding-left: 18px; color: rgba(255,255,255,.78); font-size: 0.92rem; }
+.sc-rules li { margin-bottom: 6px; }
+.sc-rules strong { color: var(--white); }
+@media (max-width: 960px) { .sc-define, .sc-steps { grid-template-columns: 1fr; } .sc-summary { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 680px) { .sc-row { grid-template-columns: 48px 1fr; } .sc-side { grid-column: 2; flex-direction: row; flex-wrap: wrap; align-items: center; } .sc-head { align-items: flex-start; } .sc-src { grid-template-columns: 1fr; } }
+@media print { .site-header, .ticker, .catnav, .msearch, .tabbar, .site-footer, .drawer, .drawer-backdrop, .sc-share, .page-hero, .newsletter, .sc-define, #method { display: none !important; } body { background: #fff; padding: 0; } .sc-group { break-inside: avoid; border-color: #ccc; } }
