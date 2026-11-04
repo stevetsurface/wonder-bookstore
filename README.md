@@ -88,6 +88,15 @@ On `product.html`, titles with an ISBN fetch their description, page count, publ
 
 Issues live in `assets/scout.js` (`SCOUT_ISSUES`). The first issue is marked as a sample: our-store numbers are real April unit sales, while international and local signal rows are examples of the format until the Monday Compass run feeds them. To publish a real issue, add an object with `week`, `number`, `rows` (catalogue `id` or title/author/publisher, `rule` 1-6, `action`, `intl`, `local`, `why` in EN and ID) and remove `sample: true`.
 
+## Feedback round (4 Nov 2026)
+
+- Brand green is now `#1B5C46` (RGB 27 92 70) across the site.
+- Navigation simplified to Books, Nonbooks, Brands, Store location, Book finder, Booky Scout, Journal. "Nonbooks" is a shop type covering gifts and stationery.
+- Home page keeps: hero tiles, category chips, one Bestsellers section (ranked rail plus top-sellers line), Popular-in feed with the setup checklist, curated shelves, concept, books & coffee, community, and a merged Wonder Club + newsletter block. Gifts rail, impact number, store grid, FAQ, journal teaser and finder teaser moved out to their own pages.
+- Store pickup is hidden behind `PICKUP_ENABLED = false` in `assets/script.js` until the stores can fulfil it; checkout ships only and the book page no longer promises pickup.
+- Wonder Coffee is at Berawa only. Ashta District 8 shares its floor with a partner book café (partner name to confirm); copy updated on home, stores, about and FAQ.
+- Reader ratings on the book page are labelled as reader ratings via Open Library with a Goodreads link beside them. Amazon and Goodreads do not expose ratings to other sites.
+
 ## Pages
 
 - `index.html` — home: ticker, slideshow, bestseller rail, curated shelves, concept, coffee shop, gifts rail, impact number, store grid, FAQ, community, newsletter

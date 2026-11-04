@@ -13,7 +13,8 @@ const BRAND_OF = {
 };
 function brandOf(pub) { for (const [b, list] of Object.entries(BRAND_OF)) if (list.includes(pub)) return b; return pub; }
 const PRODUCTS = (window.PRODUCT_DATA || []).map(p => Object.assign({}, p, { brand: brandOf(p.publisher) }));
-const TYPES = ["All", "Books", "Gifts", "Stationery"];
+const TYPES = ["All", "Books", "Nonbooks"];
+const isType = (p, tp) => tp === "All" || (tp === "Nonbooks" ? p.type !== "Books" : p.type === tp);
 const TOP_N = 5;
 const BEST_RANK = {};
 PRODUCTS.filter(p => p.type === "Books").sort((a, b) => b.sold - a.sold).slice(0, TOP_N).forEach((p, i) => { BEST_RANK[p.id] = i + 1; });
@@ -31,7 +32,7 @@ const UI = {
   "Add": "Tambah", "Quick add ↗": "Tambah cepat ↗", "Bestseller": "Terlaris", "BEST SELLER #": "TERLARIS #", "Staff pick": "Pilihan staf",
   "Gift idea": "Ide hadiah", "New": "Baru", "Hardcover": "Hardcover", "Paperback": "Paperback",
   "bought in the last 24 hours": "dibeli dalam 24 jam terakhir", "Recommended by the": "Rekomendasi tim", "team": "",
-  "All": "Semua", "Books": "Buku", "Gifts": "Hadiah", "Stationery": "Alat tulis",
+  "All": "Semua", "Books": "Buku", "Nonbooks": "Nonbuku", "Gifts": "Hadiah", "Stationery": "Alat tulis",
   "Fiction": "Fiksi", "Classics": "Klasik", "Business": "Bisnis", "Self-Development": "Pengembangan diri", "Children": "Anak",
   "All titles": "Semua judul", "Bestsellers": "Terlaris", "Staff picks": "Pilihan staf", "New arrivals": "Baru datang",
   "Grid": "Grid", "List": "Daftar", "Compact": "Ringkas",
@@ -288,7 +289,7 @@ function initShop() {
   let brand = params.get("brand") || "All";
   const VIEWS = [["grid", "Grid", "▦"], ["list", "List", "☰"], ["compact", "Compact", "▪"]];
   function categoriesFor(tp) {
-    const list = PRODUCTS.filter(p => tp === "All" || p.type === tp).map(p => p.category);
+    const list = PRODUCTS.filter(p => isType(p, tp)).map(p => p.category);
     return ["All", ...Array.from(new Set(list))];
   }
   function renderControls() {
@@ -308,7 +309,7 @@ function initShop() {
   }
   function render() {
     const q = (search.value || "").toLowerCase().trim();
-    let list = PRODUCTS.filter(p => (type === "All" || p.type === type) && (category === "All" || p.category === category) &&
+    let list = PRODUCTS.filter(p => isType(p, type) && (category === "All" || p.category === category) &&
       (collection === "all" || (collection === "best" && BEST_RANK[p.id]) || (collection === "picks" && p.pick) || (collection === "stock" && p.inStock)) &&
       (brand === "All" || p.brand === brand) &&
       (!mood || (TAGS_ALL && TAGS_ALL[mood] && TAGS_ALL[mood].has(p.id))) &&
@@ -504,7 +505,7 @@ document.addEventListener("DOMContentLoaded", () => {
    ===================================================================== */
 const STORES = [
   { id: "hublife", name: "Hublife", area: "Tanjung Duren, West Jakarta", areaId: "Tanjung Duren, Jakarta Barat", city: "Jakarta", coffee: false },
-  { id: "ashta", name: "Ashta District 8", area: "SCBD, South Jakarta", areaId: "SCBD, Jakarta Selatan", city: "Jakarta", coffee: true },
+  { id: "ashta", name: "Ashta District 8", area: "SCBD, South Jakarta", areaId: "SCBD, Jakarta Selatan", city: "Jakarta", coffee: false, cafe: true },
   { id: "pim5", name: "Pondok Indah Mall 5", area: "Pondok Indah, South Jakarta", areaId: "Pondok Indah, Jakarta Selatan", city: "Jakarta", coffee: false },
   { id: "cibubur", name: "TSM Cibubur", area: "Cibubur, Depok", areaId: "Cibubur, Depok", city: "Depok", coffee: false },
   { id: "berawa", name: "Berawa", area: "Canggu, Bali", areaId: "Canggu, Bali", city: "Bali", coffee: true },
@@ -521,6 +522,7 @@ const COURIERS = [
   { id: "instant", name: "Gojek Instant (same city)", eta: { jabodetabek: "0 (today)", bali: "0 (today)" }, rate: { jabodetabek: 25000, bali: 25000 } },
 ];
 const FREE_SHIPPING_FROM = 350000;
+const PICKUP_ENABLED = false; // store pickup is not operational yet: checkout ships only
 const PAYMENTS = [
   ["qris", "QRIS", "Scan with any bank or e-wallet app", "Scan dengan aplikasi bank atau e-wallet mana pun"],
   ["gopay", "GoPay", "Pay in the Gojek app", "Bayar lewat aplikasi Gojek"],
@@ -561,7 +563,7 @@ function initCheckout() {
   const root = document.querySelector("[data-checkout-page]");
   if (!root) return;
   const member = Member.get();
-  const st = { method: "pickup", store: "ashta", zone: "jabodetabek", courier: "jne", pay: "qris", usePoints: false, placed: null };
+  const st = { method: PICKUP_ENABLED ? "pickup" : "ship", store: "ashta", zone: "jabodetabek", courier: "jne", pay: "qris", usePoints: false, placed: null };
   if (member) { st.name = member.name; st.email = member.email; st.phone = member.phone; }
 
   function items() { return Cart.items.map(i => ({ p: PRODUCTS.find(x => x.id === i.id), qty: i.qty })); }
@@ -596,8 +598,8 @@ function initCheckout() {
 
           <section class="co-block">
             <h3><span class="n">2</span>${L("Delivery", "Pengiriman")}</h3>
-            <div class="choice-row">
-              <label class="choice ${st.method === "pickup" ? "on" : ""}"><input type="radio" name="method" value="pickup" ${st.method === "pickup" ? "checked" : ""}><div><strong>${L("Pick up in store", "Ambil di toko")}</strong><span>${L("Free · ready in 2 hours during store hours", "Gratis · siap dalam 2 jam pada jam buka")}</span></div></label>
+            <div class="choice-row" ${PICKUP_ENABLED ? "" : 'style="grid-template-columns:1fr"'}>
+              ${PICKUP_ENABLED ? `<label class="choice ${st.method === "pickup" ? "on" : ""}"><input type="radio" name="method" value="pickup" ${st.method === "pickup" ? "checked" : ""}><div><strong>${L("Pick up in store", "Ambil di toko")}</strong><span>${L("Free · ready in 2 hours during store hours", "Gratis · siap dalam 2 jam pada jam buka")}</span></div></label>` : ""}
               <label class="choice ${st.method === "ship" ? "on" : ""}"><input type="radio" name="method" value="ship" ${st.method === "ship" ? "checked" : ""}><div><strong>${L("Ship to me", "Kirim ke alamat")}</strong><span>${L("Free shipping from", "Gratis ongkir mulai")} ${money(FREE_SHIPPING_FROM)}</span></div></label>
             </div>
             ${st.method === "pickup" ? `
@@ -1098,9 +1100,9 @@ function initProduct() {
             <div class="pdp-price"><span class="price">${money(p.price)}</span>${stockLabel(p)}</div>
             <div class="pdp-ctas">
               <button class="btn btn-dark" data-add="${p.id}">${L("Add to bag ↗", "Masukkan ke tas ↗")}</button>
-              <a class="btn btn-ghost" href="checkout.html" data-buy="${p.id}">${L("Buy now · pickup or ship", "Beli sekarang · ambil atau kirim")}</a>
+              <a class="btn btn-ghost" href="checkout.html" data-buy="${p.id}">${L("Buy now", "Beli sekarang")}</a>
             </div>
-            <p class="form-note">${L("Free pickup at any of six stores within 2 hours. Shipping free from Rp 350.000.", "Ambil gratis di enam toko dalam 2 jam. Gratis ongkir mulai Rp 350.000.")}</p>
+            <p class="form-note">${L("Ships across Indonesia. Free shipping from Rp 350.000. Or find it in any of our six stores.", "Dikirim ke seluruh Indonesia. Gratis ongkir mulai Rp 350.000. Atau temukan di enam toko kami.")}</p>
           </div>
         </div>
       </section>
@@ -1123,7 +1125,7 @@ function initProduct() {
           </div>
           <div class="ptab" data-pane="stores" hidden>
             <div class="store-list">${STORES.map(s => `<a class="store-li" href="stores.html#${s.id}"><div><strong>${s.name}</strong><span>${LANG === "id" ? s.areaId : s.area}</span></div><span class="pill ${p.inStock ? "ok" : ""}">${p.inStock ? L("Ask to reserve", "Minta disimpan") : L("Order in", "Pesan")}</span></a>`).join("")}</div>
-            <p class="form-note">${L("Per-store stock arrives with the inventory sync. Pickup orders are confirmed by the store on WhatsApp.", "Stok per toko akan hadir dengan sinkronisasi inventori. Pesanan ambil di toko dikonfirmasi lewat WhatsApp.")}</p>
+            <p class="form-note">${L("Per-store stock arrives with the inventory sync. Ask the store team on WhatsApp to hold a copy.", "Stok per toko akan hadir dengan sinkronisasi inventori. Minta tim toko lewat WhatsApp untuk menyimpan satu eksemplar.")}</p>
           </div>
         </div>
       </section>
@@ -1173,10 +1175,8 @@ function initCatNav() {
   const L = (en, id) => (LANG === "id" ? id : en);
   const path = location.pathname.split("/").pop() || "index.html";
   const items = [
-    ["shop.html?col=best", L("Bestsellers", "Terlaris")], ["shop.html?cat=Fiction", t("Fiction")], ["shop.html?cat=Self-Development", L("Self-development", "Pengembangan diri")],
-    ["shop.html?cat=Children", L("Children", "Anak")], ["shop.html?cat=Comics+%26+Manga", L("Comics & manga", "Komik & manga")], ["shop.html?cat=Business", t("Business")],
-    ["shop.html?type=Gifts", L("Gifts", "Hadiah")], ["shop.html?type=Stationery", L("Stationery", "Alat tulis")], ["brands.html", L("Brands", "Brand")],
-    ["finder.html", L("Book finder", "Pencari buku")], ["scout.html", "Booky Scout"], ["journal.html", L("Journal", "Jurnal")], ["stores.html", L("Stores", "Toko")]
+    ["shop.html?type=Books", L("Books", "Buku")], ["shop.html?type=Nonbooks", L("Nonbooks", "Nonbuku")], ["brands.html", L("Brands", "Brand")],
+    ["stores.html", L("Store location", "Lokasi toko")], ["finder.html", L("Book finder", "Pencari buku")], ["scout.html", "Booky Scout"], ["journal.html", L("Journal", "Jurnal")]
   ];
   const nav = document.createElement("nav");
   nav.className = "catnav"; nav.setAttribute("aria-label", "Categories");
@@ -1212,9 +1212,10 @@ function initShopFilters() {
         ${Object.entries(cats).sort((a, b) => b[1] - a[1]).map(([c, n]) => link("?cat=" + encodeURIComponent(c), t(c), n, cur.cat === c)).join("")}
       </div>
       <div class="f-group">
-        <h4>${L("Gifts & stationery", "Hadiah & alat tulis")}</h4>
-        ${link("?type=Gifts", t("Gifts"), count(p => p.type === "Gifts"), cur.type === "Gifts")}
-        ${link("?type=Stationery", t("Stationery"), count(p => p.type === "Stationery"), cur.type === "Stationery")}
+        <h4>${L("Nonbooks", "Nonbuku")}</h4>
+        ${link("?type=Nonbooks", L("All nonbooks", "Semua nonbuku"), count(p => p.type !== "Books"), cur.type === "Nonbooks" && cur.cat === "All")}
+        ${link("?type=Nonbooks&cat=Gifts", t("Gifts"), count(p => p.type === "Gifts"), cur.cat === "Gifts")}
+        ${link("?type=Nonbooks&cat=Stationery", t("Stationery"), count(p => p.type === "Stationery"), cur.cat === "Stationery")}
       </div>
       <div class="f-group">
         <h4>${L("Mood", "Suasana")}</h4>
@@ -1292,11 +1293,11 @@ async function enrichProduct(p) {
   if (desc) {
     const short = desc.length > 900 ? desc.slice(0, 900).replace(/\s+\S*$/, "") + "…" : desc;
     about.innerHTML = `
-      ${ol.rating ? `<div class="ol-rating"><span class="stars">${"★".repeat(Math.round(ol.rating))}${"☆".repeat(5 - Math.round(ol.rating))}</span> <strong>${ol.rating}</strong> <span class="muted">· ${ol.ratings.toLocaleString(LANG === "id" ? "id-ID" : "en-US")} ${L("ratings on Open Library", "penilaian di Open Library")}</span></div>` : ""}
+      ${ol.rating ? `<div class="ol-rating"><span class="stars">${"★".repeat(Math.round(ol.rating))}${"☆".repeat(5 - Math.round(ol.rating))}</span> <strong>${ol.rating}</strong> <span class="muted">· ${ol.ratings.toLocaleString(LANG === "id" ? "id-ID" : "en-US")} ${L("reader ratings", "penilaian pembaca")}</span> <a class="muted" href="${gr}" target="_blank" rel="nofollow noopener" data-track="goodreads" style="text-decoration:underline;font-size:.85rem">${L("more on Goodreads ↗", "lainnya di Goodreads ↗")}</a></div>` : ""}
       <div class="ol-desc" data-full="${encodeURIComponent(desc)}"><p>${short.replace(/\n{2,}/g, "</p><p>").replace(/\n/g, "<br>")}</p>${desc.length > 900 ? `<button class="btn btn-dark btn-sm" data-ol-more>${L("Read more", "Baca selengkapnya")}</button>` : ""}</div>
       ${ol.subjects.length ? `<div class="moods" style="margin-top:14px">${ol.subjects.map(s => `<a class="mood" href="shop.html?q=${encodeURIComponent(s)}">${s}</a>`).join("")}</div>` : ""}
-      <p class="form-note">${L("Description and rating from Open Library.", "Deskripsi dan penilaian dari Open Library.")}</p>
-      ${grLink}`;
+      <p class="form-note">${L("Description and reader ratings via Open Library, the open book database. Amazon and Goodreads do not share ratings with other sites.", "Deskripsi dan penilaian pembaca via Open Library, basis data buku terbuka. Amazon dan Goodreads tidak membagikan penilaian ke situs lain.")}</p>
+      ${ol.rating ? "" : grLink}`;
   } else {
     about.insertAdjacentHTML("beforeend", grLink);
   }
